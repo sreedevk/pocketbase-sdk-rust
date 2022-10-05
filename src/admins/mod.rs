@@ -1,2 +1,2 @@
 mod auth;
-pub use auth::{Auth, AuthenticatedAdmin, AuthParams, SuccessResponse};
+pub use auth::{Auth, AuthenticatedAdmin, AuthParams, AuthResponse};

@@ -8,25 +8,39 @@ pub struct Auth;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct AuthenticatedAdmin {
+pub struct UserProfile {
+    id: String,
+    avatar: String,
+    created: String,
+    name: String,
+    updated: String,
+    user_id: String
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct AuthenticatedUser {
     id: String,
     created: String,
     updated: String,
     email: String,
     last_reset_sent_at: String,
-    avatar: i32
+    verified: bool,
+    last_verification_sent_at: String,
+    profile: UserProfile
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SuccessResponse {
-    admin: AuthenticatedAdmin,
+    user: AuthenticatedUser,
     token: String
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct FailureResponse {
+    code: String,
     message: String,
     data: HashMap<String, String>
 }
@@ -41,7 +55,7 @@ pub struct AuthParams {
 #[serde(rename_all = "camelCase", untagged)]
 pub enum AuthResponse {
     SuccessResponse {
-        admin: AuthenticatedAdmin,
+        user: AuthenticatedUser,
         token: String
     },
 
@@ -54,7 +68,7 @@ pub enum AuthResponse {
 impl Auth {
     pub async fn via_email(email: String, password: String, client: &Client) -> Result<AuthResponse, Box<dyn Error>> {
         let auth_response: Result<Response, Box<dyn Error>> = client.post(
-            String::from("admins/auth-via-email"),
+            String::from("users/auth-via-email"),
             &AuthParams { email, password }
         ).await;
 
