@@ -6,7 +6,13 @@ use reqwest::Response;
 
 pub struct Auth;
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Serialize)]
+pub struct User<'a>  {
+    pub data: Option<&'a AuthenticatedUser>,
+    pub token: Option<String>
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UserProfile {
     id: String,
@@ -17,10 +23,10 @@ pub struct UserProfile {
     user_id: String
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthenticatedUser {
-    id: String,
+    pub id: String,
     created: String,
     updated: String,
     email: String,
@@ -77,4 +83,18 @@ impl Auth {
             Err(e) => Err(e)
         }
     }
-}
+
+    pub async fn get_user(auth_response: &AuthResponse) -> User {
+        match auth_response {
+            AuthResponse::SuccessResponse { user, token } => {
+                User {
+                    data: Some(user),
+                    token: Some(String::from(token))
+                }
+            },
+            AuthResponse::FailureResponse { message, data} => {
+                User { data: None, token: None}
+            }
+        }
+    }
+} 
