@@ -9,7 +9,7 @@ readme = "README.md"
 homepage = "https://github.com/sreedevk/pocketbase-sdk-rust"
 respository = "https://github.com/sreedevk/pocketbase-sdk-rust"
 keywords = ["pocketbase", "pocketbase-sdk", "rust-pocketbase", "pocketbase-rs"]
-categories = ["pocketbase-sdk"]
+categories = ["development-tools"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

@@ -2,13 +2,28 @@
 
 This project is a work in progress. Feel free to contribute by forking & raising PRs.
 
+# Installation
+
+```bash
+  $ cargo add pocketbase-sdk
+```
+or add the following to your `Cargo.toml`
+
+```toml
+[dependencies]
+pocketbase-sdk = "0.0.1"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0.145", features = ["derive"] }
+```
+
 # Usage
 ```rust
-use pocketbase_sdk::{Client, admins, users};
+use pocketbase_sdk::{admins, users};
+use pocketbase_sdk::Client;
 use pocketbase_sdk::records::Changeset;
+use pocketbase_sdk::records::operations;
 use serde::Serialize;
 
-/* example model */
 #[derive(Debug, Serialize)]
 pub struct Post<'a> {
     pub title: &'a str,
@@ -18,38 +33,36 @@ pub struct Post<'a> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /* create a pocketbase client */
     let client = Client::new("http://localhost:8090/api/").unwrap();
+    let result = admins::Auth::via_email(
+        String::from("sreedevpadmakumar@gmail.com"),
+        String::from("Admin@1234"),
+        &client
+    ).await;
+    println!("{:#?}", result);
 
-    /* user authentication details */
-    let userauthresp = users::Auth::via_email(
-        String::from("sreedev@icloud.com"), /* email */
-        String::from("Admin@123"),          /* password */
+    let user_result = users::Auth::via_email(
+        String::from("sreedev@icloud.com"),
+        String::from("Admin@123"),
         &client
     ).await.unwrap();
 
-    /* retrieve user after authentication */
     let user = users::Auth::get_user(&user_result).await;
-
-    /* data attribute will be set to None if Authentication failed */
     match user.data {
         Some(userdata) => {
-            /* new model entry */
             let post = Post {
                 title: "Created via Rust",
                 content: "using pocketbase_sdk",
                 author: userdata.id.as_str()
             };
 
-            /* create a changeset from new model struct */
             let changeset: Changeset<Post> = Changeset {
                 user: &user,
                 resource: "posts",
                 record: &post
             };
 
-            /* insert into database */
-            match Changeset::insert(&client, changeset).await {
+            match operations::insert(changeset, &client).await {
                 Ok(response) => println!("{:#?}", response),
                 Err(_) => println!("could not insert record")
             };
@@ -59,6 +72,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    println!("{:#?}", &user);
+
     Ok(())
 }
+
 ```
