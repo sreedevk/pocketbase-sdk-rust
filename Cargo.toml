@@ -1,22 +1,24 @@
 [package]
-name = "pocketbase-sdk"
-version = "0.0.1"
-edition = "2021"
-authors = ["Sreedev Kodichath <sreedev@icloud.com>"]
-license = "MIT"
+name        = "pocketbase-sdk"
+version     = "0.0.1"
+edition     = "2021"
+authors     = ["Sreedev Kodichath <sreedev@icloud.com>"]
+license     = "MIT"
 description = "WebAsm Compatible Pocketbase SDK"
-readme = "README.md"
-homepage = "https://github.com/sreedevk/pocketbase-sdk-rust"
-respository = "https://github.com/sreedevk/pocketbase-sdk-rust"
-keywords = ["pocketbase", "pocketbase-sdk", "rust-pocketbase", "pocketbase-rs"]
-categories = ["development-tools"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+readme      = "README.md"
+homepage    = "https://github.com/sreedevk/pocketbase-sdk-rust"
+categories  = ["development-tools"]
+keywords    = [
+  "pocketbase",
+  "pocketbase-sdk",
+  "rust-pocketbase",
+  "pocketbase-rs"
+]
 
 [dependencies]
-log = "0.4.17"
-reqwest = { version = "0.11", features = ["json"] }
-serde = { version = "1.0.145", features = ["derive"] }
+log        = "0.4.17"
+reqwest    = { version = "0.11", features = ["json"] }
+serde      = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.85"
-tokio = { version = "1", features = ["full"] }
-url = "2.3.1"
+tokio      = { version = "1", features = ["full"] }
+url        = "2.3.1"
