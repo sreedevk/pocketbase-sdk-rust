@@ -97,8 +97,36 @@ impl Client {
 
     }
 
-    async fn authenticate_admin(&self, _credentials: &HashMap<String, String>) -> Result<(), Box<dyn Error>> {
-        todo!("Implement Authentication Admin");
+    async fn authenticate_admin(&mut self, credentials: &HashMap<String, String>) -> Result<(), Box<dyn Error>> {
+        let auth_response = self.post(String::from("admins/auth-via-email"), &credentials).await;
+        let parsed_resp   = match auth_response {
+            Ok(response) => {
+                match response.json::<AuthResponse>().await {
+                    Ok(resp) => Ok(resp),
+                    Err(err) => Err(Box::new(err) as Box<dyn Error>)
+                }
+            },
+            Err(err) => Err(err)
+        };
+
+        match parsed_resp {
+            Ok(body) => {
+                match body {
+                    AuthResponse::SuccessAuthResponse { token } =>  {
+                        self.user = Some(
+                            User { usertype: UserTypes::Admin, token }
+                        );
+
+                        Ok(())
+                    },
+                    AuthResponse::FailuredAuthResponse { code: _, message: _, data: _ } => {
+                        Err(Box::new(AuthenticationError))
+                    }
+                }
+            },
+            Err(err) => Err(err)
+
+
+        }
     }
 }
-
