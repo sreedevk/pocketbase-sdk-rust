@@ -68,7 +68,12 @@ impl Client {
     async fn authenticate_user(&mut self, credentials: &HashMap<String, String>) -> Result<(), Box<dyn Error>> {
         let auth_response = self.post(String::from("users/auth-via-email"), &credentials).await;
         let parsed_resp   = match auth_response {
-            Ok(response) => Ok(response.json::<AuthResponse>().await.unwrap()),
+            Ok(response) => {
+                match response.json::<AuthResponse>().await {
+                    Ok(resp) => Ok(resp),
+                    Err(err) => Err(Box::new(err) as Box<dyn Error>)
+                }
+            },
             Err(err) => Err(err)
         };
 
