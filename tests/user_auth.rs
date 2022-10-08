@@ -4,27 +4,28 @@ use httpmock::prelude::*;
 
 #[tokio::test]
 async fn authenticate_user() {
-    let mockserver = mock_pocketbase_api();
-    let mut client = Client::new(mockserver.url("/api").as_str()).unwrap();
+    let mockserver = mock_pocketbase_auth_success();
+    let mut client = Client::new(mockserver.url("/api/").as_str()).unwrap();
     let auth = client.auth_via_email(
         String::from("sreedev@icloud.com"),
         String::from("Admin@123"),
         UserTypes::User
     ).await;
 
+    println!("{:#?}", &auth);
     assert!(auth.is_ok());
 }
 
-fn mock_pocketbase_api() -> MockServer {
+fn mock_pocketbase_auth_success() -> MockServer {
     let server = MockServer::start();
     server.mock(|when, then| {
         when
             .method(POST)
-            .path("/api/users/auth-via-email")
-            .query_param("type", "success");
+            .path("/api/users/auth-via-email");
 
         then
             .status(200)
+            .header("content-type", "application/json")
             .body(
                 r#"
                     {

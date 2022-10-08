@@ -35,10 +35,10 @@ pub struct FailuredAuthResponse {
     pub data: HashMap<String, String>
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase", untagged)]
 pub enum AuthResponse {
     SuccessAuthResponse {
-        user: HashMap<String, String>,
         token: String,
     },
     FailuredAuthResponse {
@@ -80,7 +80,7 @@ impl Client {
         match parsed_resp {
             Ok(body) => {
                 match body {
-                    AuthResponse::SuccessAuthResponse { user: _, token } =>  {
+                    AuthResponse::SuccessAuthResponse { token } =>  {
                         self.user = Some(
                             User { usertype: UserTypes::User, token }
                         );
