@@ -38,14 +38,8 @@ pub struct FailuredAuthResponse {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase", untagged)]
 pub enum AuthResponse {
-    SuccessAuthResponse {
-        token: String,
-    },
-    FailuredAuthResponse {
-        code: String,
-        message: String,
-        data: String
-    }
+    SuccessAuthResponse(SuccessAuthResponse),
+    FailuredAuthResponse(FailuredAuthResponse)
 }
 
 impl Client {
@@ -80,14 +74,17 @@ impl Client {
         match parsed_resp {
             Ok(body) => {
                 match body {
-                    AuthResponse::SuccessAuthResponse { token } =>  {
+                    AuthResponse::SuccessAuthResponse(response) =>  {
                         self.user = Some(
-                            User { usertype: UserTypes::User, token }
+                            User {
+                                usertype: UserTypes::User,
+                                token: response.token
+                            }
                         );
 
                         Ok(())
                     },
-                    AuthResponse::FailuredAuthResponse { code: _, message: _, data: _ } => {
+                    AuthResponse::FailuredAuthResponse(_response) => {
                         Err(Box::new(AuthenticationError))
                     }
                 }
@@ -112,14 +109,17 @@ impl Client {
         match parsed_resp {
             Ok(body) => {
                 match body {
-                    AuthResponse::SuccessAuthResponse { token } =>  {
+                    AuthResponse::SuccessAuthResponse(response) =>  {
                         self.user = Some(
-                            User { usertype: UserTypes::Admin, token }
+                            User {
+                                usertype: UserTypes::Admin,
+                                token: response.token
+                            }
                         );
 
                         Ok(())
                     },
-                    AuthResponse::FailuredAuthResponse { code: _, message: _, data: _ } => {
+                    AuthResponse::FailuredAuthResponse(_response) => {
                         Err(Box::new(AuthenticationError))
                     }
                 }

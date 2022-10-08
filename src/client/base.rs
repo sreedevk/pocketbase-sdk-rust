@@ -2,14 +2,14 @@ use reqwest::{Response, header};
 use serde::Serialize;
 use super::Client;
 use std::error;
-use serde::de::DeserializeOwned;
 
 impl Client {
-    pub async fn get<T: DeserializeOwned>(&self, path: String) -> Result<T, Box<dyn error::Error>> {
+    pub async fn get(&self, path: String) -> 
+    Result<Response, Box<dyn error::Error>> {
         match self.base_url.join(path.as_str()) {
             Ok(request_url) => {
                 match reqwest::get(request_url.to_string()).await {
-                    Ok(response) => Ok(response.json::<T>().await?),
+                    Ok(response) => Ok(response),
                     Err(e) => Err(Box::new(e) as Box<dyn error::Error>)
                 }
             },
@@ -19,8 +19,8 @@ impl Client {
 
     pub async fn post<T: Serialize + Sized>(
         &self,
-        path:
-        String, body: &T
+        path: String,
+        body: &T
     ) -> Result<Response, Box<dyn error::Error>>
     {
         match self.base_url.join(path.as_str()) {
