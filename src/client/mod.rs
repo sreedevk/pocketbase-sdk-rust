@@ -1,4 +1,3 @@
-use log::error;
 use url::Url;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
