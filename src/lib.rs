@@ -1,5 +1,4 @@
 mod client;
+mod records;
+mod user;
 pub use client::Client;
-pub mod admins;
-pub mod users;
-pub mod records;
