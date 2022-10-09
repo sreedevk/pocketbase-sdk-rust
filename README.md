@@ -20,9 +20,10 @@ serde = { version = "1.0.145", features = ["derive"] }
 ```rust
 use pocketbase_sdk::client::Client;
 use pocketbase_sdk::user::UserTypes;
+use pocketbase_sdk::records::Recordable;
 use pocketbase_sdk::records::operations::list;
 
-#[derive(PocketbaseModel)]
+#[derive(Recordable)]
 struct Post {
   title: String,
   content: String,
