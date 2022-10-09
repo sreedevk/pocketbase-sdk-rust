@@ -13,7 +13,7 @@ struct Post {
 }
 
 #[tokio::test]
-async fn list_records() {
+async fn view_record() {
     let server = mock_list_view();
     let client = Client::new(server.url("/api/").as_str()).unwrap();
     let repsonse = view::record::<Post>("posts", "9bbl183t7ioqrea", &client).await.unwrap();
