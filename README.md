@@ -11,7 +11,7 @@ or add the following to your `Cargo.toml`
 
 ```toml
 [dependencies]
-pocketbase-sdk = "0.0.1"
+pocketbase-sdk = "0.0.2"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0.145", features = ["derive"] }
 ```
