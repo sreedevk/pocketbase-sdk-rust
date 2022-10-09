@@ -88,3 +88,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 ```
+
+# Roadmap
+
+1. Add File Upload Options
+2. Add Log Interface
+3. Add Admin Settings Interface
+4. Realtime API Options
