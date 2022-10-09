@@ -17,6 +17,5 @@ impl Client {
             Ok(url_object) => Ok(Client { base_url: url_object, user: None }) ,
             Err(e) => Err(Box::new(e) as Box<dyn error::Error>)
         }
-
     }
 }
