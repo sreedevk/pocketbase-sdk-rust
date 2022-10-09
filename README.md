@@ -18,6 +18,7 @@ serde = { version = "1.0.145", features = ["derive"] }
 
 # Usage
 ```rust
+use serde::{Serialize, Deserialize}
 use pocketbase_sdk::client::Client;
 use pocketbase_sdk::user::UserTypes;
 use pocketbase_sdk::records::Recordable;
@@ -25,7 +26,7 @@ use pocketbase_sdk::records::operations::{
   list, view, delete, create
 };
 
-#[derive(Recordable)]
+#[derive(Recordable, Serialize, Deserialize, Debug)]
 struct Post {
   id: String,
   title: String,
