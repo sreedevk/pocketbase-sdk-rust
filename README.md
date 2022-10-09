@@ -11,7 +11,7 @@ or add the following to your `Cargo.toml`
 
 ```toml
 [dependencies]
-pocketbase-sdk = "0.0.2"
+pocketbase-sdk = "0.0.3"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0.145", features = ["derive"] }
 ```
@@ -21,13 +21,18 @@ serde = { version = "1.0.145", features = ["derive"] }
 use pocketbase_sdk::client::Client;
 use pocketbase_sdk::user::UserTypes;
 use pocketbase_sdk::records::Recordable;
-use pocketbase_sdk::records::operations::list;
+use pocketbase_sdk::records::operations::{
+  list, view, delete, create
+};
 
 #[derive(Recordable)]
 struct Post {
+  id: String,
   title: String,
   content: String,
-  published_at: String
+  created: String,
+  updated: String,
+  author: String,
 }
 
 #[tokio::main]
@@ -41,6 +46,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ).await;
     assert!(auth.is_ok())
 
+    /* create record */
+    let record = Post {
+      title: "Sample title".to_string(),
+      content: "Sample Content".to_string(),
+      author: client.user.unwrap().token,
+      created: "".to_string,
+      updated: "".to_string
+    };
+
+    let repsonse = create::record::<Post>("posts", &post, &client).await.unwrap();
+    match repsonse {
+        create::CreateResponse::SuccessResponse(res) => {
+            assert_eq!(res.title, String::from("Sample title"))
+        },
+        create::CreateResponse::FailureResponse(_err) => panic!("Failed!")
+    }
+
+    /* view record */
+    let repsonse = view::record::<Post>("posts", "9bbl183t7ioqrea", &client).await.unwrap();
+    match repsonse {
+        view::ViewResponse::SuccessResponse(res) => assert_eq!(res.id, "9bbl183t7ioqrea"),
+        view::ViewResponse::ErrorResponse(_err) => panic!("Failed!")
+    }
+
+    /* list paginated records */
     let response = list::records::<Post>("posts", &client).await.unwrap();
     match response {
       ListResponse::SuccessResponse(paginated_record_list) => {
@@ -48,6 +78,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       },
       ListResponse::ErrorResponse(_e) => panic!("could not retrieve resource.")
     }
+
+    /* delete a record */
+    let response = delete::record("posts", "9bbl183t7ioqrea", &client).await;
+    assert!(response.is_ok());
 
     Ok(())
 }

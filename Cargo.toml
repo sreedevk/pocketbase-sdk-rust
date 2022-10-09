@@ -3,7 +3,7 @@ members = ["pocketbase-derive"]
 
 [package]
 name        = "pocketbase-sdk"
-version     = "0.0.2"
+version     = "0.0.3"
 edition     = "2021"
 authors     = ["Sreedev Kodichath <sreedev@icloud.com>"]
 license     = "MIT"

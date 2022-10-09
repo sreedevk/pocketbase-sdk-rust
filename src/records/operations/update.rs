@@ -17,9 +17,9 @@ pub enum CreateResponse<T> {
     FailureResponse(FailureResponse)
 }
 
-pub async fn record<T: Serialize + DeserializeOwned>(collection: &str, changeset: &T, client: &Client) -> Result<CreateResponse<T>, Box<dyn Error>> {
-    let url = format!("collections/{}/records", collection);
-    match client.post::<T>(url, &changeset).await {
+pub async fn record<T: Serialize + DeserializeOwned>(collection: &str, id: &str, changeset: &T, client: &Client) -> Result<CreateResponse<T>, Box<dyn Error>> {
+    let url = format!("collections/{}/records/{}", collection, id);
+    match client.patch::<T>(url, &changeset).await {
         Ok(response) => {
            match response.json::<T>().await {
                 Ok(parsed) => Ok(CreateResponse::SuccessResponse(parsed)),
