@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use super::super::Recordable;
 use crate::client::Client;
 use std::error::Error;
 use serde::{Serialize, Deserialize, de::DeserializeOwned};
@@ -29,7 +28,7 @@ pub enum ListResponse<T> {
     SuccessResponse(PaginatedRecordList<T>)
 }
 
-pub async fn records<T: Recordable + DeserializeOwned>(collection: &str, client: &Client) -> Result<ListResponse<T>, Box<dyn Error>> {
+pub async fn records<T: DeserializeOwned>(collection: &str, client: &Client) -> Result<ListResponse<T>, Box<dyn Error>> {
     let list_response = client.get(
         format!("collections/{}/records", collection),
         None
