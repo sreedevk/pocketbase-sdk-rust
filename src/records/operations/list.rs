@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use super::super::Recordable;
 use crate::client::Client;
 use std::error::Error;
@@ -8,24 +9,24 @@ use serde::{Serialize, Deserialize, de::DeserializeOwned};
 pub struct ErrorResponse {
     code: u8,
     message: String,
-    data: String
+    data: HashMap<String, String>
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct PaginatedCollection<T> {
-    page: u32,
-    per_page: u32,
-    total_items: u32,
-    total_pages: u32,
-    items: Vec<T> 
+pub struct PaginatedRecordList<T> {
+    pub page: u32,
+    pub per_page: u32,
+    pub total_items: u32,
+    pub total_pages: u32,
+    pub items: Vec<T> 
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase", untagged)]
 pub enum ListResponse<T> {
     ErrorResponse(ErrorResponse),
-    SuccessResponse(PaginatedCollection<T>)
+    SuccessResponse(PaginatedRecordList<T>)
 }
 
 

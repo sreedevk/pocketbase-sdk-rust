@@ -18,18 +18,35 @@ serde = { version = "1.0.145", features = ["derive"] }
 
 # Usage
 ```rust
-use pocketbase_sdk::Client;
+use pocketbase_sdk::client::Client;
+use pocketbase_sdk::user::UserTypes;
+use pocketbase_sdk::records::operations::list;
+
+#[derive(PocketbaseModel)]
+struct Post {
+  title: String,
+  content: String,
+  published_at: String
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /* new client + authentication */
-    let client = Client::new("http://localhost:8090/api/").unwrap();
+    let mut client = Client::new("http://localhost:8090/api/").unwrap();
     let auth = client.auth_via_email(
         String::from("sreedev@icloud.com"),
         String::from("Admin@123"),
-        UserTypes::User
+        UserTypes::User /* use UserTypes::Admin for admin Authentication */
     ).await;
     assert!(auth.is_ok())
+
+    let response = list::records::<Post>("posts", &client).await.unwrap();
+    match response {
+      ListResponse::SuccessResponse(paginated_record_list) => {
+        assert_ne!(paginated_record_list.total_items, 0)
+      },
+      ListResponse::ErrorResponse(_e) => panic!("could not retrieve resource.")
+    }
 
     Ok(())
 }
