@@ -1,11 +1,10 @@
-use pocketbase_sdk::records::Recordable;
 use httpmock::prelude::*;
 use pocketbase_sdk::records::sync_list;
 use pocketbase_sdk::client::SyncClient;
 use serde::{Serialize, Deserialize};
 use serde_json::json;
 
-#[derive(Serialize, Deserialize, Debug, Recordable)]
+#[derive(Serialize, Deserialize, Debug)]
 struct Post {
     title: String,
     content: String

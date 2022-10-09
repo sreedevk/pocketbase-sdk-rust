@@ -21,12 +21,11 @@ serde = { version = "1.0.145", features = ["derive"] }
 use serde::{Serialize, Deserialize}
 use pocketbase_sdk::client::Client;
 use pocketbase_sdk::user::UserTypes;
-use pocketbase_sdk::records::Recordable;
 use pocketbase_sdk::records::operations::{
   list, view, delete, create
 };
 
-#[derive(Recordable, Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 struct Post {
   id: String,
   title: String,
@@ -94,12 +93,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 use serde::{Serialize, Deserialize}
 use pocketbase_sdk::client::SyncClient;
 use pocketbase_sdk::user::UserTypes;
-use pocketbase_sdk::records::Recordable;
 use pocketbase_sdk::records::operations::{
   sync_list, sycn_view, sync_delete, sync_create
 };
 
-#[derive(Recordable, Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 struct Post {
   id: String,
   title: String,
@@ -166,3 +164,4 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 2. Add Log Interface
 3. Add Admin Settings Interface
 4. Realtime API Options
+5. WebAsm Support

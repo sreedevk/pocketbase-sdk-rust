@@ -13,5 +13,4 @@ pub use sync_operations::sync_delete;
 pub use sync_operations::sync_update;
 pub use sync_operations::sync_view;
 
-pub trait Recordable {}
 pub trait Changeset {}
