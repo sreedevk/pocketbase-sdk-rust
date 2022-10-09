@@ -2,6 +2,18 @@
 name = "pocketbase_derive"
 version = "0.0.1"
 edition = "2021"
+authors     = ["Sreedev Kodichath <sreedev@icloud.com>"]
+license     = "MIT"
+description = "WebAsm Compatible Pocketbase SDK"
+readme      = "README.md"
+homepage    = "https://github.com/sreedevk/pocketbase-sdk-rust"
+categories  = ["development-tools"]
+keywords    = [
+  "pocketbase",
+  "pocketbase-sdk",
+  "rust-pocketbase",
+  "pocketbase-rs"
+]
 
 [lib]
 proc-macro = true
