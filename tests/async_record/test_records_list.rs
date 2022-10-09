@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate pocketbase_derive;
-
 use pocketbase_sdk::records::Recordable;
 use httpmock::prelude::*;
 use pocketbase_sdk::records::list;
