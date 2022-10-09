@@ -26,9 +26,9 @@ serde                 = { version = "1.0.145", features = ["derive"] }
 serde_json            = "1.0.85"
 tokio                 = { version = "1", features = ["full"] }
 url                   = "2.3.1"
-pocketbase_derive     = { path = "./pocketbase-derive" }
+pocketbase_derive     = { version = "0.0.1", path = "./pocketbase-derive" }
 
 
 [dev-dependencies]
 httpmock = "0.6"
-pocketbase_derive     = { path = "./pocketbase-derive" }
+pocketbase_derive     = { version = "0.0.1", path = "./pocketbase-derive" }
