@@ -16,7 +16,7 @@ async fn authenticate_admin() {
     assert!(auth.is_ok());
 }
 
-pub fn mock_admin_login() -> MockServer {
+fn mock_admin_login() -> MockServer {
     let server = MockServer::start();
     server.mock(|when, then| {
         when

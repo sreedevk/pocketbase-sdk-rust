@@ -1,48 +1,41 @@
-#[macro_use]
-extern crate pocketbase_derive;
-
-use pocketbase_sdk::records::Recordable;
-use httpmock::prelude::*;
-use pocketbase_sdk::records::list;
 use pocketbase_sdk::client::Client;
-use serde::{Serialize, Deserialize};
+use pocketbase_sdk::records::view;
+use httpmock::prelude::*;
 use serde_json::json;
+use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize, Debug, Recordable)]
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 struct Post {
+    id: String,
     title: String,
     content: String
 }
 
 #[tokio::test]
 async fn list_records() {
-    let server = mock_list_posts();
+    let server = mock_list_view();
     let client = Client::new(server.url("/api/").as_str()).unwrap();
-    let repsonse = list::records::<Post>("posts", &client).await.unwrap();
+    let repsonse = view::record::<Post>("posts", "9bbl183t7ioqrea", &client).await.unwrap();
     match repsonse {
-        list::ListResponse::SuccessResponse(res) => assert_eq!(res.total_items, 1),
-        list::ListResponse::ErrorResponse(_err) => panic!("Failed!")
+        view::ViewResponse::SuccessResponse(res) => assert_eq!(res.id, "9bbl183t7ioqrea"),
+        view::ViewResponse::ErrorResponse(_err) => panic!("Failed!")
     }
 }
 
-fn mock_list_posts() -> MockServer {
+fn mock_list_view() -> MockServer {
     let server = MockServer::start();
 
     server.mock(|when, then| {
         when
             .method(GET)
-            .path("/api/collections/posts/records");
+            .path("/api/collections/posts/records/9bbl183t7ioqrea");
 
         then
             .status(200)
             .header("content-type", "application/json")
             .json_body(
-                json!({
-                    "page": 1,
-                    "perPage": 30,
-                    "totalItems": 1,
-                    "totalPages": 1,
-                    "items": [
+                json!(
                     {
                         "@collectionId": "ba47n093oe2awj7",
                         "@collectionName": "posts",
@@ -53,8 +46,7 @@ fn mock_list_posts() -> MockServer {
                         "title": "User 2 Hello World!",
                         "updated": "2022-10-05 11:21:11.444"
                     }
-                ]
-                })
+                )
             );
     });
 

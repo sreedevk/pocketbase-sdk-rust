@@ -16,7 +16,7 @@ async fn authenticate_user() {
     assert!(auth.is_ok());
 }
 
-pub fn mock_user_login() -> MockServer {
+fn mock_user_login() -> MockServer {
     let server = MockServer::start();
     server.mock(|when, then| {
         when
