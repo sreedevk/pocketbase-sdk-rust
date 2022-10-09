@@ -29,7 +29,6 @@ pub enum ListResponse<T> {
     SuccessResponse(PaginatedRecordList<T>)
 }
 
-
 pub async fn records<T: Recordable + DeserializeOwned>(collection: &str, client: &Client) -> Result<ListResponse<T>, Box<dyn Error>> {
     let list_response = client.get(
         format!("collections/{}/records", collection)

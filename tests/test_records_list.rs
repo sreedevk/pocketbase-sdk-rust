@@ -1,21 +1,17 @@
-use std::{collections::HashMap, iter::Successors};
+#[macro_use]
+extern crate pocketbase_derive;
+
+use pocketbase_sdk::records::Recordable;
 use httpmock::prelude::*;
-use pocketbase_sdk::records::{Recordable, operations::list::*};
 use pocketbase_sdk::records::operations::list;
 use pocketbase_sdk::client::Client;
 use serde::{Serialize, Deserialize};
 use serde_json::json;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Recordable)]
 struct Post {
-    title: Option<String>,
-    body: Option<String>
-}
-
-impl Recordable for Post {
-    fn new(_args: HashMap<String, String>) -> Post {
-        Post { title: None, body: None }
-    }
+    title: String,
+    content: String
 }
 
 #[tokio::test]
@@ -24,8 +20,8 @@ async fn list_records() {
     let client = Client::new(server.url("/api/").as_str()).unwrap();
     let repsonse = list::records::<Post>("posts", &client).await.unwrap();
     match repsonse {
-        ListResponse::SuccessResponse(res) => assert_eq!(res.total_items, 1),
-        ListResponse::ErrorResponse(_err) => panic!("Failed!")
+        list::ListResponse::SuccessResponse(res) => assert_eq!(res.total_items, 1),
+        list::ListResponse::ErrorResponse(_err) => panic!("Failed!")
     }
 }
 
