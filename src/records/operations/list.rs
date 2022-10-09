@@ -31,7 +31,8 @@ pub enum ListResponse<T> {
 
 pub async fn records<T: Recordable + DeserializeOwned>(collection: &str, client: &Client) -> Result<ListResponse<T>, Box<dyn Error>> {
     let list_response = client.get(
-        format!("collections/{}/records", collection)
+        format!("collections/{}/records", collection),
+        None
     ).await;
 
     match list_response {

@@ -22,6 +22,7 @@ pub enum ViewResponse<T> {
 pub async fn record<T: DeserializeOwned>(collection: &str, id: &str, client: &Client) -> Result<ViewResponse<T>, Box<dyn Error>> {
     let response = client.get(
         format!("collections/{}/records/{}", collection, id),
+        None
     ).await;
 
     match response {
@@ -32,6 +33,5 @@ pub async fn record<T: DeserializeOwned>(collection: &str, id: &str, client: &Cl
             }
         }
         Err(err) => Err(err)
-
     }
 }
