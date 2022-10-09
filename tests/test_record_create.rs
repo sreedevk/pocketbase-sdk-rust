@@ -11,7 +11,8 @@ struct Post {
     title: String,
     content: String,
     created: String,
-    updated: String
+    updated: String,
+    author: String,
 }
 
 #[tokio::test]
@@ -23,7 +24,8 @@ async fn create_record() {
         title: "Test Post Created By Pocketbase SDK".to_string(),
         content: "This is a test post".to_string(),
         created: "".to_string(),
-        updated: "".to_string()
+        updated: "".to_string(),
+        author: "jxso1raa3ta3p0y".to_string()
     };
     let repsonse = create::record::<Post>("posts", &post, &client).await.unwrap();
     match repsonse {
