@@ -11,7 +11,7 @@ struct SuccessResponse {}
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct FailuredResponse {
+struct FailureResponse {
     code: String,
     message: String,
     data: HashMap<String, String>
@@ -21,7 +21,7 @@ struct FailuredResponse {
 #[serde(rename_all = "camelCase", untagged)]
 enum DeleteResponse {
     SuccessResponse(SuccessResponse),
-    FailuredResponse(FailuredResponse)
+    FailureResponse(FailureResponse)
 }
 
 pub async fn record(collection: &str, id: &str, client: &Client) -> Result<(), Box<dyn Error>> {

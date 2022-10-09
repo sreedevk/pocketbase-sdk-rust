@@ -41,6 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ).await;
     assert!(auth.is_ok())
 
+    /* list records */
     let response = list::records::<Post>("posts", &client).await.unwrap();
     match response {
       ListResponse::SuccessResponse(paginated_record_list) => {

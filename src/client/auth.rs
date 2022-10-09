@@ -28,7 +28,7 @@ pub struct SuccessAuthResponse {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct FailuredAuthResponse {
+pub struct FailureAuthResponse {
     pub code: String,
     pub message: String,
     pub data: HashMap<String, String>
@@ -38,7 +38,7 @@ pub struct FailuredAuthResponse {
 #[serde(rename_all = "camelCase", untagged)]
 pub enum AuthResponse {
     SuccessAuthResponse(SuccessAuthResponse),
-    FailuredAuthResponse(FailuredAuthResponse)
+    FailureAuthResponse(FailureAuthResponse)
 }
 
 impl Client {
@@ -83,7 +83,7 @@ impl Client {
 
                         Ok(())
                     },
-                    AuthResponse::FailuredAuthResponse(_response) => {
+                    AuthResponse::FailureAuthResponse(_response) => {
                         Err(Box::new(AuthenticationError))
                     }
                 }
@@ -118,7 +118,7 @@ impl Client {
 
                         Ok(())
                     },
-                    AuthResponse::FailuredAuthResponse(_response) => {
+                    AuthResponse::FailureAuthResponse(_response) => {
                         Err(Box::new(AuthenticationError))
                     }
                 }
