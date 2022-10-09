@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use std::collections::HashMap;
 use crate::user::{UserTypes, User};
-use super::Client;
+use super::{Client, SyncClient};
 use std::error::Error;
 use std::fmt;
 
@@ -98,6 +98,95 @@ impl Client {
         let parsed_resp   = match auth_response {
             Ok(response) => {
                 match response.json::<AuthResponse>().await {
+                    Ok(resp) => Ok(resp),
+                    Err(err) => Err(Box::new(err) as Box<dyn Error>)
+                }
+            },
+            Err(err) => Err(err)
+        };
+
+        match parsed_resp {
+            Ok(body) => {
+                match body {
+                    AuthResponse::SuccessAuthResponse(response) =>  {
+                        self.user = Some(
+                            User {
+                                usertype: UserTypes::Admin,
+                                token: response.token
+                            }
+                        );
+
+                        Ok(())
+                    },
+                    AuthResponse::FailureAuthResponse(_response) => {
+                        Err(Box::new(AuthenticationError))
+                    }
+                }
+            },
+            Err(err) => Err(err)
+
+
+        }
+    }
+}
+
+impl SyncClient {
+    pub fn auth_via_email<'a>(
+        &mut self,
+        email: String, password: String,
+        usertype: UserTypes
+    ) -> Result<(), Box<dyn Error>>
+    {
+        let mut credentials: HashMap<String, String> = HashMap::new();
+        credentials.insert(String::from("email"), email);
+        credentials.insert(String::from("password"), password);
+
+        match usertype {
+            UserTypes::User => self.authenticate_user(&credentials),
+            UserTypes::Admin => self.authenticate_admin(&credentials),
+        }
+    }
+
+    fn authenticate_user(&mut self, credentials: &HashMap<String, String>) -> Result<(), Box<dyn Error>> {
+        let auth_response = self.post(String::from("users/auth-via-email"), &credentials);
+        let parsed_resp   = match auth_response {
+            Ok(response) => {
+                match response.json::<AuthResponse>() {
+                    Ok(resp) => Ok(resp),
+                    Err(err) => Err(Box::new(err) as Box<dyn Error>)
+                }
+            },
+            Err(err) => Err(err)
+        };
+
+        match parsed_resp {
+            Ok(body) => {
+                match body {
+                    AuthResponse::SuccessAuthResponse(response) =>  {
+                        self.user = Some(
+                            User {
+                                usertype: UserTypes::User,
+                                token: response.token
+                            }
+                        );
+
+                        Ok(())
+                    },
+                    AuthResponse::FailureAuthResponse(_response) => {
+                        Err(Box::new(AuthenticationError))
+                    }
+                }
+            },
+            Err(err) => Err(err)
+        }
+
+    }
+
+    fn authenticate_admin(&mut self, credentials: &HashMap<String, String>) -> Result<(), Box<dyn Error>> {
+        let auth_response = self.post(String::from("admins/auth-via-email"), &credentials);
+        let parsed_resp   = match auth_response {
+            Ok(response) => {
+                match response.json::<AuthResponse>() {
                     Ok(resp) => Ok(resp),
                     Err(err) => Err(Box::new(err) as Box<dyn Error>)
                 }
