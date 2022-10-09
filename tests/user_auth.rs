@@ -1,22 +1,22 @@
-use pocketbase_sdk::Client;
-use pocketbase_sdk::UserTypes;
+use pocketbase_sdk::client::Client;
+use pocketbase_sdk::user::UserTypes;
 use httpmock::prelude::*;
+use serde_json::json;
 
 #[tokio::test]
 async fn authenticate_user() {
-    let mockserver = mock_pocketbase_auth_success();
+    let mockserver = mock_user_login();
     let mut client = Client::new(mockserver.url("/api/").as_str()).unwrap();
-    let auth = client.auth_via_email(
+    let auth       = client.auth_via_email(
         String::from("sreedev@icloud.com"),
         String::from("Admin@123"),
         UserTypes::User
     ).await;
 
-    println!("{:#?}", &auth);
     assert!(auth.is_ok());
 }
 
-fn mock_pocketbase_auth_success() -> MockServer {
+pub fn mock_user_login() -> MockServer {
     let server = MockServer::start();
     server.mock(|when, then| {
         when
@@ -26,33 +26,22 @@ fn mock_pocketbase_auth_success() -> MockServer {
         then
             .status(200)
             .header("content-type", "application/json")
-            .body(
-                r#"
-                    {
-                        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjY0Njg3ODQsImlkIjoianhzbzFyYWEzdGEzcDB5IiwidHlwZSI6InVzZXIifQ.FIeDD2RE7Gz4WOe8eVIEC765l0llXA9d-wUumXBLYm8",
-                        "user": {
-                            "id": "jxso1raa3ta3p0y",
-                            "created": "2022-10-05 11:19:32.545",
-                            "updated": "2022-10-05 11:19:32.545",
-                            "email": "adminuser@gmail.com",
-                            "lastResetSentAt": "",
-                            "verified": false,
-                            "lastVerificationSentAt": "",
-                            "profile": {
-                                "@collectionId": "systemprofiles0",
-                                "@collectionName": "profiles",
-                                "avatar": "",
-                                "created": "2022-10-05 11:19:32.545",
-                                "id": "bpnv2fx3e098x6w",
-                                "name": "",
-                                "updated": "2022-10-05 11:19:32.545",
-                                "userId": "jxso1raa3ta3p0y"
-                            }
-                        }
-                    }
-                "#
+            .json_body(
+                json!({
+                    "user": {
+                        "id": "1n2b67cbuq8h2ei",
+                        "created": "2022-10-05 03:16:44.732",
+                        "updated": "2022-10-05 04:55:30.408",
+                        "email": "sreedevpadmakumar@gmail.com",
+                        "lastResetSentAt": "",
+                        "avatar": 3
+                    },
+                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjY0NzQwMTQsImlkIjoiMW4yYjY3Y2J1cThoMmVpIiwidHlwZSI6ImFkbWluIn0.CTwSudbKGIfOkFv30FZJzqbiSltyKNaTrwiqZ5Hk0Lk"
+                })
             );
     });
 
     server
 }
+
+

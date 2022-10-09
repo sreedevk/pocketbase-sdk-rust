@@ -23,7 +23,6 @@ impl Error for AuthenticationError {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SuccessAuthResponse {
-    pub user: HashMap<String, String>,
     pub token: String
 }
 
