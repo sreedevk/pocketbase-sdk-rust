@@ -21,8 +21,10 @@ log                   = "0.4.17"
 reqwest               = { version = "0.11", features = ["json", "blocking"] }
 serde                 = { version = "1.0.145", features = ["derive"] }
 serde_json            = "1.0.85"
+surf                  = { version = "2.3.2", features = ["wasm-client"] }
+thiserror = "1.0.37"
 url                   = "2.3.1"
 
 [dev-dependencies]
-httpmock = "0.6"
+httpmock              = "0.6"
 tokio                 = { version = "1", features = ["full"] }

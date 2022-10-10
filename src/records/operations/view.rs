@@ -1,8 +1,8 @@
 use crate::client::Client;
 use serde::de::DeserializeOwned;
-use std::error::Error;
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
+use super::PocketbaseOperationError;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -19,19 +19,20 @@ pub enum ViewResponse<T> {
     SuccessResponse(T)
 }
 
-pub async fn record<T: DeserializeOwned>(collection: &str, id: &str, client: &Client) -> Result<ViewResponse<T>, Box<dyn Error>> {
-    let response = client.get(
+pub async fn record<T: DeserializeOwned>(collection: &str, id: &str, client: &Client) -> Result<ViewResponse<T>, PocketbaseOperationError> {
+    let http_request = client.get::<HashMap<String, String>>(
         format!("collections/{}/records/{}", collection, id),
         None
     ).await;
 
-    match response {
-        Ok(resp) => { 
-            match resp.json::<ViewResponse<T>>().await {
-                Ok(parsed) => Ok(parsed),
-                Err(e) => Err(Box::new(e) as Box<dyn Error>)
+    match http_request {
+        Ok(request) => {
+            let http_client = surf::client();
+            match http_client.recv_json(request).await {
+                Ok(response) => Ok(response),
+                Err(_) => Err(PocketbaseOperationError::Failed)
             }
         }
-        Err(err) => Err(err)
+        Err(_) => Err(PocketbaseOperationError::Failed)
     }
 }
