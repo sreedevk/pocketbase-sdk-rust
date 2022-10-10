@@ -18,7 +18,5 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build x86
       run: cargo build --verbose
-    - name: Build Wasm32
-      run: cargo build --verbase --target wasm32-unknown-unknown
     - name: Run tests
       run: cargo test --verbose
