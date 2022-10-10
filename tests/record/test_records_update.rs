@@ -1,5 +1,5 @@
 use httpmock::Method::PATCH;
-use pocketbase_sdk::client::Client;
+use pocketbase_sdk::{client::Client, records::update::UpdateResponse};
 use pocketbase_sdk::records::update;
 use httpmock::prelude::*;
 use serde_json::json;
@@ -8,36 +8,41 @@ use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct Post {
-    id: String,
     title: String,
     content: String,
-    created: String,
-    updated: String,
-    author: String,
 }
 
 #[tokio::test]
 async fn update_record() {
-    let server = mock_record_create();
+    let server = mock_record_patch();
     let client = Client::new(server.url("/api/").as_str()).unwrap();
     let post = Post {
-        id: "".to_string(),
         title: "Test Post Created By Pocketbase SDK".to_string(),
         content: "This is a test post".to_string(),
-        created: "".to_string(),
-        updated: "".to_string(),
-        author: "jxso1raa3ta3p0y".to_string()
     };
-    let repsonse = update::record::<Post>("posts", "jxso1raa3ta3p0y", &post, &client).await.unwrap();
-    match repsonse {
-        update::CreateResponse::SuccessResponse(res) => {
-            assert_eq!(res.title, String::from("Test Post Created By Pocketbase SDK"))
+
+    let response = update::record::<Post>(
+        "posts",
+        "jxso1raa3ta3p0y",
+        &post,
+        &client
+    ).await;
+
+    match response {
+        Ok(resp) => {
+            match resp {
+                UpdateResponse::SuccessResponse(mod_post) => {
+                    assert_eq!(mod_post.title, post.title)
+                },
+                UpdateResponse::FailureResponse(_) => panic!("failed")
+            }
         },
-        update::CreateResponse::FailureResponse(_err) => panic!("Failed!")
+        Err(e) => println!("{:#?}", e)
     }
+    
 }
 
-fn mock_record_create() -> MockServer {
+fn mock_record_patch() -> MockServer {
     let server = MockServer::start();
 
     server.mock(|when, then| {

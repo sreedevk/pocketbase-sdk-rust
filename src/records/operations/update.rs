@@ -11,13 +11,13 @@ pub struct FailureResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub enum CreateResponse<T> {
+#[serde(rename_all = "camelCase", untagged)]
+pub enum UpdateResponse<T> {
     SuccessResponse(T),
     FailureResponse(FailureResponse)
 }
 
-pub async fn record<T: Serialize + DeserializeOwned>(collection: &str, id: &str, changeset: &T, client: &Client) -> Result<CreateResponse<T>, PocketbaseOperationError> {
+pub async fn record<T: Serialize + DeserializeOwned>(collection: &str, id: &str, changeset: &T, client: &Client) -> Result<UpdateResponse<T>, PocketbaseOperationError> {
     let url = format!("collections/{}/records/{}", collection, id);
     match client.patch::<T>(url, &changeset).await {
        Ok(request) => {
