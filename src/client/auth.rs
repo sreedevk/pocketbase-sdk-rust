@@ -1,23 +1,13 @@
 use serde::Deserialize;
 use std::collections::HashMap;
 use crate::user::{UserTypes, User};
-use super::{Client, SyncClient};
-use std::error::Error;
-use std::fmt;
+use super::Client;
+use thiserror::Error;
 
-#[derive(Debug, Clone)]
-struct AuthenticationError;
-
-impl fmt::Display for AuthenticationError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Authentication Failed")
-    }
-}
-
-impl Error for AuthenticationError {
-    fn description(&self) -> &str {
-        "Authentication Failed!"
-    }
+#[derive(Debug, Clone, Error)]
+pub enum PocketBaseAuthenticationError {
+    #[error("Authentication Failed")]
+    Unknown
 }
 
 #[derive(Deserialize, Debug)]
@@ -46,7 +36,7 @@ impl Client {
         &mut self,
         email: String, password: String,
         usertype: UserTypes
-    ) -> Result<(), Box<dyn Error>>
+    ) -> Result<(), PocketBaseAuthenticationError>
     {
         let mut credentials: HashMap<String, String> = HashMap::new();
         credentials.insert(String::from("email"), email);
@@ -58,16 +48,17 @@ impl Client {
         }
     }
 
-    async fn authenticate_user(&mut self, credentials: &HashMap<String, String>) -> Result<(), Box<dyn Error>> {
-        let auth_response = self.post(String::from("users/auth-via-email"), &credentials).await;
-        let parsed_resp   = match auth_response {
-            Ok(response) => {
-                match response.json::<AuthResponse>().await {
+    async fn authenticate_user(&mut self, credentials: &HashMap<String, String>) -> Result<(), PocketBaseAuthenticationError> {
+        let request = self.post(String::from("users/auth-via-email"), &credentials).await;
+        let parsed_resp   = match request {
+            Ok(request) => {
+                let http_client = surf::client();
+                match http_client.recv_json(request).await {
                     Ok(resp) => Ok(resp),
-                    Err(err) => Err(Box::new(err) as Box<dyn Error>)
+                    Err(_err) => Err(PocketBaseAuthenticationError::Unknown)
                 }
             },
-            Err(err) => Err(err)
+            Err(_) => Err(PocketBaseAuthenticationError::Unknown)
         };
 
         match parsed_resp {
@@ -84,7 +75,7 @@ impl Client {
                         Ok(())
                     },
                     AuthResponse::FailureAuthResponse(_response) => {
-                        Err(Box::new(AuthenticationError))
+                        Err(PocketBaseAuthenticationError::Unknown)
                     }
                 }
             },
@@ -93,16 +84,17 @@ impl Client {
 
     }
 
-    async fn authenticate_admin(&mut self, credentials: &HashMap<String, String>) -> Result<(), Box<dyn Error>> {
-        let auth_response = self.post(String::from("admins/auth-via-email"), &credentials).await;
-        let parsed_resp   = match auth_response {
-            Ok(response) => {
-                match response.json::<AuthResponse>().await {
+    async fn authenticate_admin(&mut self, credentials: &HashMap<String, String>) -> Result<(), PocketBaseAuthenticationError> {
+        let auth_request = self.post(String::from("admins/auth-via-email"), &credentials).await;
+        let parsed_resp   = match auth_request {
+            Ok(request) => {
+                let http_client  = surf::client();
+                match http_client.recv_json(request).await {
                     Ok(resp) => Ok(resp),
-                    Err(err) => Err(Box::new(err) as Box<dyn Error>)
+                    Err(_) => Err(super::base::PocketbaseClientError::InvalidRequest)
                 }
             },
-            Err(err) => Err(err)
+            Err(_) => Err(super::base::PocketbaseClientError::InvalidRequest)
         };
 
         match parsed_resp {
@@ -119,102 +111,11 @@ impl Client {
                         Ok(())
                     },
                     AuthResponse::FailureAuthResponse(_response) => {
-                        Err(Box::new(AuthenticationError))
+                        Err(PocketBaseAuthenticationError::Unknown)
                     }
                 }
             },
-            Err(err) => Err(err)
-
-
-        }
-    }
-}
-
-impl SyncClient {
-    pub fn auth_via_email<'a>(
-        &mut self,
-        email: String, password: String,
-        usertype: UserTypes
-    ) -> Result<(), Box<dyn Error>>
-    {
-        let mut credentials: HashMap<String, String> = HashMap::new();
-        credentials.insert(String::from("email"), email);
-        credentials.insert(String::from("password"), password);
-
-        match usertype {
-            UserTypes::User => self.authenticate_user(&credentials),
-            UserTypes::Admin => self.authenticate_admin(&credentials),
-        }
-    }
-
-    fn authenticate_user(&mut self, credentials: &HashMap<String, String>) -> Result<(), Box<dyn Error>> {
-        let auth_response = self.post(String::from("users/auth-via-email"), &credentials);
-        let parsed_resp   = match auth_response {
-            Ok(response) => {
-                match response.json::<AuthResponse>() {
-                    Ok(resp) => Ok(resp),
-                    Err(err) => Err(Box::new(err) as Box<dyn Error>)
-                }
-            },
-            Err(err) => Err(err)
-        };
-
-        match parsed_resp {
-            Ok(body) => {
-                match body {
-                    AuthResponse::SuccessAuthResponse(response) =>  {
-                        self.user = Some(
-                            User {
-                                usertype: UserTypes::User,
-                                token: response.token
-                            }
-                        );
-
-                        Ok(())
-                    },
-                    AuthResponse::FailureAuthResponse(_response) => {
-                        Err(Box::new(AuthenticationError))
-                    }
-                }
-            },
-            Err(err) => Err(err)
-        }
-
-    }
-
-    fn authenticate_admin(&mut self, credentials: &HashMap<String, String>) -> Result<(), Box<dyn Error>> {
-        let auth_response = self.post(String::from("admins/auth-via-email"), &credentials);
-        let parsed_resp   = match auth_response {
-            Ok(response) => {
-                match response.json::<AuthResponse>() {
-                    Ok(resp) => Ok(resp),
-                    Err(err) => Err(Box::new(err) as Box<dyn Error>)
-                }
-            },
-            Err(err) => Err(err)
-        };
-
-        match parsed_resp {
-            Ok(body) => {
-                match body {
-                    AuthResponse::SuccessAuthResponse(response) =>  {
-                        self.user = Some(
-                            User {
-                                usertype: UserTypes::Admin,
-                                token: response.token
-                            }
-                        );
-
-                        Ok(())
-                    },
-                    AuthResponse::FailureAuthResponse(_response) => {
-                        Err(Box::new(AuthenticationError))
-                    }
-                }
-            },
-            Err(err) => Err(err)
-
-
+            Err(_) => Err(PocketBaseAuthenticationError::Unknown)
         }
     }
 }

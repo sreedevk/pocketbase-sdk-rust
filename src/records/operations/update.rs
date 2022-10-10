@@ -1,7 +1,7 @@
 use crate::client::Client;
 use serde::{Serialize, Deserialize};
-use std::error::Error;
 use serde::de::DeserializeOwned;
+use super::PocketbaseOperationError;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -11,21 +11,22 @@ pub struct FailureResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub enum CreateResponse<T> {
+#[serde(rename_all = "camelCase", untagged)]
+pub enum UpdateResponse<T> {
     SuccessResponse(T),
     FailureResponse(FailureResponse)
 }
 
-pub async fn record<T: Serialize + DeserializeOwned>(collection: &str, id: &str, changeset: &T, client: &Client) -> Result<CreateResponse<T>, Box<dyn Error>> {
+pub async fn record<T: Serialize + DeserializeOwned>(collection: &str, id: &str, changeset: &T, client: &Client) -> Result<UpdateResponse<T>, PocketbaseOperationError> {
     let url = format!("collections/{}/records/{}", collection, id);
     match client.patch::<T>(url, &changeset).await {
-        Ok(response) => {
-           match response.json::<T>().await {
-                Ok(parsed) => Ok(CreateResponse::SuccessResponse(parsed)),
-                Err(e) => Err(Box::new(e) as Box<dyn Error>)
+       Ok(request) => {
+            let http_client = surf::client();
+            match http_client.recv_json(request).await {
+                Ok(response) => Ok(response),
+                Err(_) => Err(PocketbaseOperationError::Failed)
             }
         },
-        Err(e) => Err(e)
+        Err(_) => Err(PocketbaseOperationError::Failed)
     }
 }

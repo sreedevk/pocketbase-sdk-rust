@@ -1,8 +1,6 @@
 use std::collections::HashMap;
-use std::error::Error;
-
+use super::PocketbaseOperationError;
 use serde::{Serialize, Deserialize};
-
 use crate::client::Client;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -24,15 +22,16 @@ enum DeleteResponse {
     FailureResponse(FailureResponse)
 }
 
-pub async fn record(collection: &str, id: &str, client: &Client) -> Result<(), Box<dyn Error>> {
+pub async fn record(collection: &str, id: &str, client: &Client) -> Result<(), PocketbaseOperationError> {
     let url = format!("/api/collections/{}/records/{}", collection, id);
-    match client.delete(url, None).await {
-        Ok(resp) => {
-            match resp.json::<DeleteResponse>().await {
+    match client.delete(url).await {
+        Ok(request) => {
+            let http_client = surf::client();
+            match http_client.recv_string(request).await {
                 Ok(_) => Ok(()),
-                Err(e) => Err(Box::new(e) as Box<dyn Error>)
+                Err(_) => Err(PocketbaseOperationError::Failed)
             }
         },
-        Err(err) => Err(err)
+        Err(_) => Err(PocketbaseOperationError::Failed)
     }
 }
