@@ -8,21 +8,24 @@ description = "WebAsm Compatible Pocketbase SDK"
 readme      = "README.md"
 homepage    = "https://github.com/sreedevk/pocketbase-sdk-rust"
 categories  = ["development-tools"]
-keywords    = [
-  "pocketbase",
-  "pocketbase-sdk",
-  "rust-pocketbase",
-  "pocketbase-rs"
-]
-
+keywords    = ["pocketbase", "pocketbase-sdk", "rust-pocketbase", "pocketbase-rs"]
 
 [dependencies]
 log                   = "0.4.17"
 serde                 = { version = "1.0.145", features = ["derive"] }
 serde_json            = "1.0.85"
-surf                  = { version = "2.3.2", features = ["wasm-client"] }
-thiserror = "1.0.37"
+thiserror             = "1.0.37"
 url                   = "2.3.1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+surf = { version = "2.3.2", default-features = false, features = ["wasm-client"] }
+
+[features]
+wasm-client = []
+
+# [target.'cfg(not(target_os = "wasm32"))'.dependencies]
+# surf = { version = "2.3.2", default-features = false, features = ["curl-client"] }
+
 
 [dev-dependencies]
 httpmock              = "0.6"
