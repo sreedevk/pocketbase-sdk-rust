@@ -1,6 +1,15 @@
 <h3 align="center">Pocketbase SDK</h3>
 
-This project is a work in progress. Feel free to contribute by forking & raising PRs.
+<p align="center">
+  A Rust SDK for Pocketbase Clients. Pocketbase is an open source backend for your SaaS & Mobile Applications.
+  The Goal of this project is to create a wrapper around the APIs that Pocketbase exposes to abstract away
+  unnecessary details of implementation, so that you can focus on building your app and not worry about integration
+  with pocketbase.  
+</p>
+
+<p>
+Pocketbase SDK currently only known to work on x86 targets. So essentially only CLI/Native applications can be built using Pocketbase SDK. But WebAsm support is on the [Roadmap](#roadmap)
+</p>
 
 # Installation
 
@@ -88,9 +97,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ```
 # Roadmap
-
-1. Add File Upload Options
-2. Add Log Interface
-3. Add Admin Settings Interface
-4. Realtime API Options
-5. WebAsm Support
+1. WebAsm Support [(v0.1.7)](https://github.com/sreedevk/pocketbase-sdk-rust/pull/9)
+2. Support Record File Attachments Upload [#11](https://github.com/sreedevk/pocketbase-sdk-rust/issues/11)
+3. Admin Tools: Logs
+4. Admin Tools: Settings
+5. Support Pocketbase Realtime APIs
