@@ -8,8 +8,10 @@
 </p>
 
 <p>
-Pocketbase SDK currently only known to work on x86 targets. So essentially only CLI/Native applications can be built using Pocketbase SDK. But WebAsm support is on the [Roadmap](#roadmap)
+Pocketbase SDK currently only known to work on x86 targets. So essentially only CLI/Native applications can be built using Pocketbase SDK. But WebAsm support is on the <a href="#Roadmap">Roadmap</a>
 </p>
+
+#### Currently Compatible with Pocketbase Version 0.10.3
 
 # Installation
 
@@ -20,7 +22,7 @@ or add the following to your `Cargo.toml`
 
 ```toml
 [dependencies]
-pocketbase-sdk = "0.0.6"
+pocketbase-sdk = "0.0.7"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0.145", features = ["derive"] }
 ```
