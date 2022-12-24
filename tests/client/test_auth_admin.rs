@@ -6,10 +6,10 @@ use serde_json::json;
 #[tokio::test]
 async fn authenticate_admin() {
     let mockserver = mock_admin_login();
-    let mut client = Client::new(mockserver.url("/api/").as_str()).unwrap();
+    let mut client = Client::new(&mockserver.url("/api/")).unwrap();
     let auth       = client.auth_via_email(
         String::from("sreedev@icloud.com"),
-        String::from("Admin@123"),
+        String::from("Administrator@123"),
         UserTypes::Admin
     ).await;
 
@@ -21,7 +21,7 @@ fn mock_admin_login() -> MockServer {
     server.mock(|when, then| {
         when
             .method(POST)
-            .path("/api/admins/auth-via-email");
+            .path("/api/admins/auth-with-password");
 
         then
             .status(200)

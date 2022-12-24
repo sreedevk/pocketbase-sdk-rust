@@ -49,7 +49,7 @@ impl Client {
     ) -> Result<(), Box<dyn Error>>
     {
         let mut credentials: HashMap<String, String> = HashMap::new();
-        credentials.insert(String::from("email"), email);
+        credentials.insert(String::from("identity"), email);
         credentials.insert(String::from("password"), password);
 
         match usertype {
@@ -59,7 +59,7 @@ impl Client {
     }
 
     async fn authenticate_user(&mut self, credentials: &HashMap<String, String>) -> Result<(), Box<dyn Error>> {
-        let auth_response = self.post(String::from("users/auth-via-email"), &credentials).await;
+        let auth_response = self.post(String::from("collections/users/auth-with-password"), &credentials).await;
         let parsed_resp   = match auth_response {
             Ok(response) => {
                 match response.json::<AuthResponse>().await {
@@ -94,7 +94,7 @@ impl Client {
     }
 
     async fn authenticate_admin(&mut self, credentials: &HashMap<String, String>) -> Result<(), Box<dyn Error>> {
-        let auth_response = self.post(String::from("admins/auth-via-email"), &credentials).await;
+        let auth_response = self.post(String::from("admins/auth-with-password"), &credentials).await;
         let parsed_resp   = match auth_response {
             Ok(response) => {
                 match response.json::<AuthResponse>().await {

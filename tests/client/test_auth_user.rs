@@ -21,7 +21,7 @@ fn mock_user_login() -> MockServer {
     server.mock(|when, then| {
         when
             .method(POST)
-            .path("/api/users/auth-via-email");
+            .path("/api/collections/users/auth-with-password");
 
         then
             .status(200)
