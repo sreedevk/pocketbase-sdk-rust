@@ -22,13 +22,14 @@ impl Client {
                             UserTypes::User => {
                                 opts_attached.header(
                                     AUTHORIZATION,
-                                    format!("User {}", user.token)
+                                    format!("{}", user.token)
                                 )
                             },
                             UserTypes::Admin => {
+                                println!("Admin");
                                 opts_attached.header(
                                     AUTHORIZATION,
-                                    format!("Admin {}", user.token)
+                                    format!("{}", user.token)
                                 )
 
                             }
@@ -66,13 +67,13 @@ impl Client {
                             UserTypes::User => {
                                 req.header(
                                     AUTHORIZATION,
-                                    format!("User {}", user.token)
+                                    format!("{}", user.token)
                                 )
                             },
                             UserTypes::Admin => {
                                 req.header(
                                     AUTHORIZATION,
-                                    format!("Admin {}", user.token)
+                                    format!("{}", user.token)
                                 )
 
                             }
@@ -109,13 +110,13 @@ impl Client {
                             UserTypes::User => {
                                 req.header(
                                     AUTHORIZATION,
-                                    format!("User {}", user.token)
+                                    format!("{}", user.token)
                                 )
                             },
                             UserTypes::Admin => {
                                 req.header(
                                     AUTHORIZATION,
-                                    format!("Admin {}", user.token)
+                                    format!("{}", user.token)
                                 )
 
                             }
