@@ -157,13 +157,13 @@ impl Client {
                             UserTypes::User => {
                                 opts_attached.header(
                                     AUTHORIZATION,
-                                    format!("User {}", user.token)
+                                    format!("{}", user.token)
                                 )
                             },
                             UserTypes::Admin => {
                                 opts_attached.header(
                                     AUTHORIZATION,
-                                    format!("Admin {}", user.token)
+                                    format!("{}", user.token)
                                 )
 
                             }
