@@ -1,8 +1,8 @@
 [package]
 name        = "pocketbase-sdk"
-version     = "0.0.7"
+version     = "0.0.8"
 edition     = "2021"
-authors     = ["Sreedev Kodichath <sreedev@icloud.com>"]
+authors     = ["Sreedev Kodichath <sreedev@icloud.com>", "CubeCoder <markus.hamacher16@gmail.com>"]
 license     = "MIT"
 description = "WebAsm Compatible Pocketbase SDK"
 readme      = "README.md"
