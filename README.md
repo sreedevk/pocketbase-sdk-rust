@@ -29,7 +29,7 @@ serde = { version = "1.0.145", features = ["derive"] }
 
 # Usage
 ```rust
-use serde::{Serialize, Deserialize}
+use serde::{Serialize, Deserialize};
 use pocketbase_sdk::client::Client;
 use pocketbase_sdk::user::UserTypes;
 use pocketbase_sdk::records::operations::{
