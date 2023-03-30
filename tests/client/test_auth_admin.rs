@@ -1,17 +1,19 @@
+use httpmock::prelude::*;
 use pocketbase_sdk::client::Client;
 use pocketbase_sdk::user::UserTypes;
-use httpmock::prelude::*;
 use serde_json::json;
 
 #[tokio::test]
 async fn authenticate_admin() {
     let mockserver = mock_admin_login();
     let mut client = Client::new(mockserver.url("/api/").as_str()).unwrap();
-    let auth       = client.auth_via_email(
-        String::from("sreedev@icloud.com"),
-        String::from("Admin@123"),
-        UserTypes::Admin
-    ).await;
+    let auth = client
+        .auth_via_email(
+            String::from("sreedev@icloud.com"),
+            String::from("Admin@123"),
+            UserTypes::Admin,
+        )
+        .await;
 
     assert!(auth.is_ok());
 }
