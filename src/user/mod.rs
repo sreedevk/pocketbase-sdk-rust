@@ -1,11 +1,11 @@
 #[derive(Debug)]
 pub enum UserTypes {
     User,
-    Admin
+    Admin,
 }
 
 #[derive(Debug)]
 pub struct User {
     pub token: String,
-    pub usertype: UserTypes
+    pub usertype: UserTypes,
 }
