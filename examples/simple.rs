@@ -1,23 +1,3 @@
-<h3 align="center">Pocketbase SDK</h3>
-
-This project is a work in progress. Feel free to contribute by forking & raising PRs.
-
-# Installation
-
-```bash
-  $ cargo add pocketbase-sdk
-```
-or add the following to your `Cargo.toml`
-
-```toml
-[dependencies]
-pocketbase-sdk = "0.0.5"
-tokio = { version = "1", features = ["full"] }
-serde = { version = "1.0.145", features = ["derive"] }
-```
-
-# Usage
-```rust
 use pocketbase_sdk::client::Client;
 use pocketbase_sdk::records::operations::{create, delete, list, view};
 use pocketbase_sdk::user::UserTypes;
@@ -89,14 +69,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-
-
-```
-
-# Roadmap
-
-1. Add File Upload Options
-2. Add Log Interface
-3. Add Admin Settings Interface
-4. Realtime API Options
-5. WebAsm Support (v0.0.6)
