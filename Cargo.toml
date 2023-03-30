@@ -23,8 +23,8 @@ surf = { version = "2.3.2", default-features = false, features = ["wasm-client"]
 [features]
 wasm-client = []
 
-# [target.'cfg(not(target_os = "wasm32"))'.dependencies]
-# surf = { version = "2.3.2", default-features = false, features = ["curl-client"] }
+[target.'cfg(not(target_os = "wasm32"))'.dependencies]
+surf = { version = "2.3.2", default-features = false, features = ["curl-client"] }
 
 
 [dev-dependencies]
