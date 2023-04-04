@@ -1,7 +1,7 @@
-use std::collections::HashMap;
 use super::PocketbaseOperationError;
-use serde::{Serialize, Deserialize};
 use crate::client::Client;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -12,26 +12,30 @@ struct SuccessResponse {}
 struct FailureResponse {
     code: String,
     message: String,
-    data: HashMap<String, String>
+    data: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", untagged)]
 enum DeleteResponse {
     SuccessResponse(SuccessResponse),
-    FailureResponse(FailureResponse)
+    FailureResponse(FailureResponse),
 }
 
-pub async fn record(collection: &str, id: &str, client: &Client) -> Result<(), PocketbaseOperationError> {
+pub async fn record(
+    collection: &str,
+    id: &str,
+    client: &Client,
+) -> Result<(), PocketbaseOperationError> {
     let url = format!("/api/collections/{}/records/{}", collection, id);
-    match client.delete(url).await {
+    match client.delete(&url).await {
         Ok(request) => {
             let http_client = surf::client();
             match http_client.recv_string(request).await {
                 Ok(_) => Ok(()),
-                Err(_) => Err(PocketbaseOperationError::Failed)
+                Err(_) => Err(PocketbaseOperationError::Failed),
             }
-        },
-        Err(_) => Err(PocketbaseOperationError::Failed)
+        }
+        Err(_) => Err(PocketbaseOperationError::Failed),
     }
 }

@@ -1,29 +1,10 @@
-<h3 align="center">Pocketbase SDK</h3>
-
-This project is a work in progress. Feel free to contribute by forking & raising PRs.
-
-# Installation
-
-```bash
-  $ cargo add pocketbase-sdk
-```
-or add the following to your `Cargo.toml`
-
-```toml
-[dependencies]
-pocketbase-sdk = "0.0.5"
-tokio = { version = "1", features = ["full"] }
-serde = { version = "1.0.145", features = ["derive"] }
-```
-
-# Usage
-```rust
 use pocketbase_sdk::client::Client;
 use pocketbase_sdk::records::operations::{create, delete, list, view};
 use pocketbase_sdk::user::UserTypes;
+use pretty_assertions::{assert_eq, assert_ne};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug,Default)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 struct Post {
     id: String,
     title: String,
@@ -44,13 +25,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             UserTypes::User, /* use UserTypes::Admin for admin Authentication */
         )
         .await;
-    assert!(auth.is_ok());
+    assert!(auth.is_ok(), "Auth error: {}", auth.err().unwrap());
 
     /* create record */
     let record = Post {
         title: "Sample title".to_string(),
         content: "Sample Content".to_string(),
-        author: client.user.as_ref().unwrap().token.clone(),,
+        author: client.user.as_ref().unwrap().token.clone(),
         ..Default::default()
     };
 
@@ -87,13 +68,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-
-```
-
-# Roadmap
-
-1. Add File Upload Options
-2. Add Log Interface
-3. Add Admin Settings Interface
-4. Realtime API Options
-5. WebAsm Support (v0.0.6)

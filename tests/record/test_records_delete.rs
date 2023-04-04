@@ -1,6 +1,6 @@
+use httpmock::prelude::*;
 use pocketbase_sdk::client::Client;
 use pocketbase_sdk::records::delete;
-use httpmock::prelude::*;
 
 #[tokio::test]
 async fn delete_record() {
@@ -14,13 +14,10 @@ fn mock_list_view() -> MockServer {
     let server = MockServer::start();
 
     server.mock(|when, then| {
-        when
-            .method(DELETE)
+        when.method(DELETE)
             .path("/api/collections/posts/records/9bbl183t7ioqrea");
 
-        then
-            .status(204)
-            .header("content-type", "application/json");
+        then.status(204).header("content-type", "application/json");
     });
 
     server
