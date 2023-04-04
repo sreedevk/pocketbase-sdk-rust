@@ -28,7 +28,7 @@ pub async fn record(
     client: &Client,
 ) -> Result<(), PocketbaseOperationError> {
     let url = format!("/api/collections/{}/records/{}", collection, id);
-    match client.delete(url).await {
+    match client.delete(&url).await {
         Ok(request) => {
             let http_client = surf::client();
             match http_client.recv_string(request).await {

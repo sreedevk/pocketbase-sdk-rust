@@ -13,10 +13,10 @@ pub enum PocketbaseClientError {
 impl Client {
     pub async fn get<T: Serialize>(
         &self,
-        path: String,
+        path: &str,
         params: Option<&T>,
     ) -> Result<Request, PocketbaseClientError> {
-        match self.base_url.join(path.as_str()) {
+        match self.base_url.join(path) {
             Ok(request_url) => {
                 let request = surf::RequestBuilder::new(Method::Get, request_url);
                 let opts_attached = match params {
@@ -44,10 +44,10 @@ impl Client {
 
     pub async fn post<T: Serialize + Sized>(
         &self,
-        path: String,
+        path: &str,
         body: &T,
     ) -> Result<Request, PocketbaseClientError> {
-        match self.base_url.join(path.as_str()) {
+        match self.base_url.join(path) {
             Ok(request_url) => {
                 let request = surf::RequestBuilder::new(Method::Post, request_url)
                     .header("content-type", "application/json")
@@ -74,10 +74,10 @@ impl Client {
 
     pub async fn patch<T: Serialize + Sized>(
         &self,
-        path: String,
+        path: &str,
         body: &T,
     ) -> Result<Request, PocketbaseClientError> {
-        match self.base_url.join(path.as_str()) {
+        match self.base_url.join(path) {
             Ok(request_url) => {
                 let request = surf::RequestBuilder::new(Method::Patch, request_url)
                     .header("content-type", "application/json")
@@ -102,8 +102,8 @@ impl Client {
         }
     }
 
-    pub async fn delete(&self, path: String) -> Result<Request, PocketbaseClientError> {
-        match self.base_url.join(path.as_str()) {
+    pub async fn delete(&self, path:  &str) -> Result<Request, PocketbaseClientError> {
+        match self.base_url.join(path) {
             Ok(request_url) => {
                 let request = surf::RequestBuilder::new(Method::Delete, request_url)
                     .header("content-type", "application/json");

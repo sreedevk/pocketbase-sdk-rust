@@ -23,7 +23,7 @@ pub async fn record<T: Serialize + DeserializeOwned>(
     client: &Client,
 ) -> Result<CreateResponse<T>, PocketbaseOperationError> {
     let url = format!("collections/{}/records", collection);
-    match client.post::<T>(url, &changeset).await {
+    match client.post::<T>(&url, &changeset).await {
         Ok(request) => {
             let http_client = surf::client();
             match http_client.recv_json(request).await {

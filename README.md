@@ -39,8 +39,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut client = Client::new("http://localhost:8090/api/").unwrap();
     let auth = client
         .auth_via_email(
-            String::from("sreedev@icloud.com"),
-            String::from("Admin@123"),
+            "sreedev@icloud.com",
+            "Admin@123",
             UserTypes::User, /* use UserTypes::Admin for admin Authentication */
         )
         .await;
@@ -48,12 +48,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     /* create record */
     let record = Post {
-        id: "".to_string(),
         title: "Sample title".to_string(),
         content: "Sample Content".to_string(),
-        author: client.user.as_ref().unwrap().token.clone(),
-        created: "".to_string(),
-        updated: "".to_string(),
+        author: client.user.as_ref().unwrap().token.clone(),,
+        ..Default::default()
     };
 
     let response = create::record::<Post>("posts", &record, &client)
@@ -89,7 +87,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-
 
 ```
 

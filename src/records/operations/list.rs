@@ -35,7 +35,7 @@ pub async fn records<T: DeserializeOwned>(
     params: Option<&HashMap<String, String>>,
 ) -> Result<ListResponse<T>, PocketbaseOperationError> {
     let http_request = client
-        .get(format!("collections/{}/records", collection), params)
+        .get(&format!("collections/{}/records", collection), params)
         .await;
 
     match http_request {

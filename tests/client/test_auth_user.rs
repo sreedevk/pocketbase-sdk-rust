@@ -8,11 +8,7 @@ async fn authenticate_user() {
     let mockserver = mock_user_login();
     let mut client = Client::new(mockserver.url("/api/").as_str()).unwrap();
     let auth = client
-        .auth_via_email(
-            String::from("sreedev@icloud.com"),
-            String::from("Admin@123"),
-            UserTypes::User,
-        )
+        .auth_via_email("sreedev@icloud.com", "Admin@123", UserTypes::User)
         .await;
 
     assert!(auth.is_ok());

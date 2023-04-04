@@ -1,9 +1,10 @@
 use pocketbase_sdk::client::Client;
 use pocketbase_sdk::records::operations::{create, delete, list, view};
 use pocketbase_sdk::user::UserTypes;
+use pretty_assertions::{assert_eq, assert_ne};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug,Default)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 struct Post {
     id: String,
     title: String,
@@ -19,21 +20,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut client = Client::new("http://localhost:8090/api/").unwrap();
     let auth = client
         .auth_via_email(
-            String::from("sreedev@icloud.com"),
-            String::from("Admin@123"),
+            "sreedev@icloud.com",
+            "Admin@123",
             UserTypes::User, /* use UserTypes::Admin for admin Authentication */
         )
         .await;
-    assert!(auth.is_ok());
+    assert!(auth.is_ok(), "Auth error: {}", auth.err().unwrap());
 
     /* create record */
     let record = Post {
-        id: "".to_string(),
         title: "Sample title".to_string(),
         content: "Sample Content".to_string(),
         author: client.user.as_ref().unwrap().token.clone(),
-        created: "".to_string(),
-        updated: "".to_string(),
+        ..Default::default()
     };
 
     let response = create::record::<Post>("posts", &record, &client)
