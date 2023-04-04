@@ -127,10 +127,7 @@ impl Client {
         credentials: &HashMap<String, String>,
     ) -> Result<(), PocketBaseAuthenticationError> {
         let request = self
-            .post(
-                "collections/users/auth-with-password",
-                &credentials,
-            )
+            .post("collections/users/auth-with-password", &credentials)
             .await;
         let parsed_resp = match request {
             Ok(request) => {
@@ -165,9 +162,7 @@ impl Client {
         &mut self,
         credentials: &HashMap<String, String>,
     ) -> Result<(), PocketBaseAuthenticationError> {
-        let auth_request = self
-            .post("admins/auth-via-email", &credentials)
-            .await;
+        let auth_request = self.post("admins/auth-via-email", &credentials).await;
         let parsed_resp = match auth_request {
             Ok(request) => {
                 let http_client = surf::client();

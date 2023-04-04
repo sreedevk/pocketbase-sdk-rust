@@ -102,7 +102,7 @@ impl Client {
         }
     }
 
-    pub async fn delete(&self, path:  &str) -> Result<Request, PocketbaseClientError> {
+    pub async fn delete(&self, path: &str) -> Result<Request, PocketbaseClientError> {
         match self.base_url.join(path) {
             Ok(request_url) => {
                 let request = surf::RequestBuilder::new(Method::Delete, request_url)
