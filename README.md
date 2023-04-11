@@ -22,12 +22,14 @@ or add the following to your `Cargo.toml`
 
 ```toml
 [dependencies]
-pocketbase-sdk = "0.0.7"
+pocketbase-sdk = "0.0.8"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0.145", features = ["derive"] }
 ```
 
 # Usage
+
+Note: You need to have a table created called "posts" inside of your repository for this code to work which must contain the files "title, content, author, created, updated". To use this in your own script what you want to do is modify the struct to have the data that you have, modify the variable name which here is named post to the variable your passing in our creating.
 ```rust
 use serde::{Serialize, Deserialize};
 use pocketbase_sdk::client::Client;
@@ -38,7 +40,6 @@ use pocketbase_sdk::records::operations::{
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Post {
-  id: String,
   title: String,
   content: String,
   created: String,
@@ -55,15 +56,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         String::from("Admin@123"),
         UserTypes::User /* use UserTypes::Admin for admin Authentication */
     ).await;
-    assert!(auth.is_ok())
+    assert!(auth.is_ok());
 
     /* create record */
-    let record = Post {
+    let post = Post {
       title: "Sample title".to_string(),
       content: "Sample Content".to_string(),
-      author: client.user.unwrap().token,
-      created: "".to_string,
-      updated: "".to_string
+      author: "Sample Author".to_string(),
+      created: "".to_string(),
+      updated: "".to_string()
     };
 
     let repsonse = create::record::<Post>("posts", &post, &client).await.unwrap();
@@ -77,7 +78,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /* view record */
     let repsonse = view::record::<Post>("posts", "9bbl183t7ioqrea", &client).await.unwrap();
     match repsonse {
-        view::ViewResponse::SuccessResponse(res) => assert_eq!(res.id, "9bbl183t7ioqrea"),
+        view::ViewResponse::SuccessResponse(res) => println!("9bbl183t7ioqrea"),
         view::ViewResponse::ErrorResponse(_err) => panic!("Failed!")
     }
 
@@ -96,7 +97,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-
 ```
 # Roadmap
 1. WebAsm Support [(v0.1.7)](https://github.com/sreedevk/pocketbase-sdk-rust/pull/9)
