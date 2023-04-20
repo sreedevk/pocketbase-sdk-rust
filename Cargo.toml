@@ -1,6 +1,6 @@
 [package]
 name        = "pocketbase-sdk"
-version     = "0.0.8"
+version     = "0.0.9"
 edition     = "2021"
 authors     = ["Sreedev Kodichath <sreedev@icloud.com>", "CubeCoder <markus.hamacher16@gmail.com>"]
 license     = "MIT"
@@ -16,11 +16,14 @@ keywords    = [
 ]
 
 [dependencies]
-log                   = "0.4.17"
-reqwest               = { version = "0.11", features = ["json"] }
-serde                 = { version = "1.0.145", features = ["derive"] }
-serde_json            = "1.0.85"
-url                   = "2.3.1"
+anyhow = "1.0.70"
+dashmap = "5.4.0"
+log = "0.4.17"
+serde = { version = "1.0.145", features = ["derive"] }
+serde_json = "1.0.85"
+thiserror = "1.0.40"
+ureq = { version = "2.6.2", features = ["json", "charset"] }
+url = "2.3.1"
 
 [dev-dependencies]
 httpmock = "0.6"
