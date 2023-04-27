@@ -23,7 +23,7 @@ impl Httpc {
     pub fn post<T>(
         client: &Client<T>,
         url: &str,
-        body_content: HashMap<&str, &str>,
+        body_content: HashMap<String, String>,
     ) -> Result<Response> {
         Ok(ureq::post(url))
             .and_then(|request| Self::attach_auth_info(request, client))

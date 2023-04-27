@@ -31,6 +31,7 @@ fn main() -> Result<()> {
     let authenticated_client = pocket_client.authenticate_with_password(auth_info)?;
     let collections          = authenticated_client.collections().list()?;
 
+    dbg!(&authenticated_client);
     dbg!(collections);
 
     Ok(())

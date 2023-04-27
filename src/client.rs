@@ -1,9 +1,9 @@
 use std::collections::HashMap;
+use crate::errors::AuthError;
 
 use anyhow::Result;
 use log::{error, info};
 use serde::Deserialize;
-use thiserror::Error;
 use ureq::Response;
 
 use crate::{httpc::Httpc, collections::CollectionsManager};
@@ -11,14 +11,6 @@ use crate::{httpc::Httpc, collections::CollectionsManager};
 #[derive(Debug, Deserialize)]
 struct AuthSuccessResponse {
     token: String,
-}
-
-#[derive(Error, Debug)]
-pub enum AuthError {
-    #[error("Authentication Failed")]
-    AuthenticationFailed,
-    #[error("Auth Response Parse Error")]
-    AuthResponseParseFailed,
 }
 
 #[derive(Debug, Clone)]
@@ -37,10 +29,10 @@ impl Credentials {
         }
     }
 
-    pub fn to_request_body(&self) -> HashMap<&str, &str> {
+    pub fn to_request_body(&self) -> HashMap<String, String> {
         let mut body = HashMap::new();
-        body.insert("identity", self.identifier.as_str());
-        body.insert("password", self.secret.as_str());
+        body.insert("identity".to_string(), self.identifier.clone());
+        body.insert("password".to_string(), self.secret.clone());
 
         body
     }
