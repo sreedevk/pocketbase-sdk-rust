@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use ureq::{Request, Response};
 
-use crate::client::{Client, Auth, NoAuth};
+use crate::client::{Auth, Client, NoAuth};
 use anyhow::Result;
 
 pub struct Httpc;
@@ -14,9 +14,20 @@ impl Httpc {
         }
     }
 
-    pub fn get(client: &Client<Auth>, url: &str) -> Result<Response> {
+    pub fn get(
+        client: &Client<Auth>,
+        url: &str,
+        query_params: Option<Vec<(&str, &str)>>,
+    ) -> Result<Response> {
         Ok(ureq::get(url))
             .and_then(|request| Self::attach_auth_info(request, client))
+            .and_then(|request| {
+                if let Some(pairs) = query_params {
+                    Ok(request.query_pairs(pairs))
+                } else {
+                    Ok(request)
+                }
+            })
             .and_then(|request| Ok(request.call()?))
     }
 

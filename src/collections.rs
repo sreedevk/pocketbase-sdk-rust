@@ -91,19 +91,16 @@ pub struct CollectionListRequestBuilder<'a> {
 impl<'a> CollectionListRequestBuilder<'a> {
     pub fn call(&self) -> Result<CollectionList> {
         let url = format!("{}/api/collections", self.client.base_url);
-        let mut build_opts = HashMap::new();
-        if let Some(filter_opts) = &self.filter {
-            build_opts.insert("filter".to_string(), filter_opts.clone());
-        }
+        let mut build_opts: Vec<(&str, &str)> = Vec::new();
 
-        if let Some(sort_opts) = &self.sort {
-            build_opts.insert("sort".to_string(), sort_opts.clone());
-        }
+        if let Some(filter_opts) = &self.filter { build_opts.push(("filter", filter_opts)) }
+        if let Some(sort_opts) = &self.sort { build_opts.push(("sort", sort_opts)) }
+        let per_page_opts = self.per_page.to_string();
+        let page_opts = self.page.to_string();
+        build_opts.push(("per_page", per_page_opts.as_str()));
+        build_opts.push(("page", page_opts.as_str()));
 
-        build_opts.insert("per_page".to_string(), self.per_page.to_string());
-        build_opts.insert("page".to_string(), self.page.to_string());
-
-        match Httpc::get(self.client, &url) {
+        match Httpc::get(self.client, &url, Some(build_opts)) {
             Ok(result) => {
                 let response = result.into_json::<CollectionList>()?;
                 Ok(response)
@@ -167,7 +164,7 @@ impl<'a> CollectionsManager<'a> {
 impl<'a> CollectionViewRequestBuilder<'a> {
     pub fn call(&self) -> Result<Collection> {
         let url = format!("{}/api/collections/{}", self.client.base_url, self.name);
-        match Httpc::get(self.client, &url) {
+        match Httpc::get(self.client, &url, None) {
             Ok(result) => {
                 let response = result.into_json::<Collection>()?;
                 Ok(response)
