@@ -8,32 +8,189 @@ A Rust SDK for Pocketbase Clients. Pocketbase is an open source backend for your
 
 ```bash
   $ cargo add pocketbase-sdk
+  $ cargo add serde
 ```
 or add the following to your `Cargo.toml`
 
 ```toml
 [dependencies]
 pocketbase-sdk = "0.0.7"
-tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0.145", features = ["derive"] }
 ```
 
 # Usage
+
+### Collections
+
 ```rust
-use pocketbase_sdk::client::{Client, Credentials};
 use anyhow::Result;
+use pocketbase_sdk::admin::Admin;
 
 fn main() -> Result<()> {
     env_logger::init();
 
-    let pocket_client        = Client::new("http://localhost:8090");
-    let auth_info            = Credentials::new("users", "sreedev@icloud.com", "Sreedev123");
-    let authenticated_client = pocket_client.authenticate_with_password(auth_info)?;
-    let collections          = authenticated_client.collections().list()?;
+    // admin authentication
+    let authenticated_admin_client = Admin::new("http://localhost:8090")
+        .auth_with_password("sreedev@icloud.com", "Sreedev123")?;
 
-    dbg!(&authenticated_client);
+    // collections list + Filter
+    let collections = authenticated_admin_client
+        .collections()
+        .list()
+        .page(1)
+        .per_page(100)
+        .call()?;
+
     dbg!(collections);
+
+    // view collection
+    let user_collection = authenticated_admin_client
+        .collections()
+        .view("users")
+        .call()?;
+
+    dbg!(user_collection);
 
     Ok(())
 }
 ```
+
+### Records
+```rust
+use anyhow::Result;
+use pocketbase_sdk::client::Client;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Deserialize, Default)]
+pub struct Product {
+    pub id: String,
+    pub name: String,
+    pub count: i32,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct NewProduct {
+    pub name: String,
+    pub count: i32,
+}
+
+fn main() -> Result<()> {
+    env_logger::init();
+
+    /* Authenticate Client */
+    let authenticated_client = Client::new("http://localhost:8090").authenticate_with_password(
+        "users",
+        "sreedev@icloud.com",
+        "Sreedev123",
+    )?;
+
+    /* List Products */
+    let products = authenticated_client
+        .records("products")
+        .list()
+        .call::<Product>()?;
+    dbg!(products);
+
+    /* View Product */
+    let product = authenticated_client
+        .records("products")
+        .view("jme4ixxqie2f9ho")
+        .call::<Product>()?;
+    dbg!(product);
+
+    /* Create Product */
+    let new_product = NewProduct {
+        name: String::from("bingo"),
+        count: 69420,
+    };
+    let create_response = authenticated_client
+        .records("products")
+        .create(new_product)
+        .call()?;
+    dbg!(&create_response);
+
+    /* Update Product */
+    let updated_product = NewProduct {
+        name: String::from("bango"),
+        count: 69420,
+    };
+    let update_response = authenticated_client
+        .records("products")
+        .update(create_response.id.as_str(), updated_product)
+        .call()?;
+
+    dbg!(update_response);
+
+    /* Delete Product */
+    authenticated_client
+        .records("products")
+        .destroy(create_response.id.as_str())
+        .call()?;
+
+    Ok(())
+}
+```
+
+### Logs
+
+```rust
+use anyhow::Result;
+use pocketbase_sdk::admin::Admin;
+
+fn main() -> Result<()> {
+    env_logger::init();
+
+    // admin authentication
+    let admin = Admin::new("http://localhost:8090")
+        .auth_with_password("sreedev@icloud.com", "Sreedev123")?;
+
+    // list logs
+    let logs = admin.logs().list().page(1).per_page(10).call()?;
+    dbg!(&logs);
+
+    // view log
+    let somelogid = &logs.items[0].id;
+    let logitem = admin.logs().view(somelogid).call()?;
+    dbg!(logitem);
+
+    // view log statistics data points
+    let logstats = admin.logs().statistics().call()?;
+    dbg!(logstats);
+
+    Ok(())
+}
+```
+
+### HealthCheck
+
+```rust
+use anyhow::Result;
+use pocketbase_sdk::client::Client;
+
+fn main() -> Result<()> {
+    let client = Client::new("http://localhost:8090");
+    let health_check_response = client.health_check()?;
+    dbg!(health_check_response);
+
+    Ok(())
+}
+```
+
+# Development TODOs
+
+* [ ] Collections
+    * [x] List Collections
+    * [x] View Collection
+    * [ ] Create Collection
+* [ ] Records
+    * [x] Create Records
+    * [x] Update Records
+    * [x] Delete Records
+    * [ ] Bulk Delete Records
+    * [ ] File Downloads
+* [ ] Real Time APIs
+* [ ] WebAsm Support
+* [ ] Settings
+    * [ ] List
+    * [ ] Update
+* [x] Health Check

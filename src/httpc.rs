@@ -1,7 +1,6 @@
-use std::collections::HashMap;
 use ureq::{Request, Response};
 
-use crate::client::{Auth, Client, NoAuth};
+use crate::client::Client;
 use anyhow::Result;
 
 pub struct Httpc;
@@ -14,8 +13,8 @@ impl Httpc {
         }
     }
 
-    pub fn get(
-        client: &Client<Auth>,
+    pub fn get<T>(
+        client: &Client<T>,
         url: &str,
         query_params: Option<Vec<(&str, &str)>>,
     ) -> Result<Response> {

@@ -1,7 +1,7 @@
 use crate::{collections::CollectionsManager, httpc::Httpc};
 use crate::{logs::LogsManager, records::RecordsManager};
 use anyhow::{anyhow, Result};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 #[derive(Debug, Deserialize)]
@@ -22,9 +22,23 @@ pub struct Client<State = NoAuth> {
     pub state: State,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+pub struct HealthCheckResponse {
+    pub code: i32,
+    pub message: String,
+}
+
 impl Client<Auth> {
     pub fn collections(&self) -> CollectionsManager {
         CollectionsManager { client: self }
+    }
+
+    pub fn health_check(&self) -> Result<HealthCheckResponse> {
+        let url = format!("{}/api/health", self.base_url);
+        match Httpc::get(self, &url, None) {
+            Ok(response) => Ok(response.into_json::<HealthCheckResponse>()?),
+            Err(e) => Err(anyhow!("{}", e))
+        }
     }
 
     pub fn logs(&self) -> LogsManager {
@@ -45,6 +59,14 @@ impl Client<NoAuth> {
             base_url: base_url.to_string(),
             auth_token: None,
             state: NoAuth,
+        }
+    }
+
+    pub fn health_check(&self) -> Result<HealthCheckResponse> {
+        let url = format!("{}/api/health", self.base_url);
+        match Httpc::get(self, &url, None) {
+            Ok(response) => Ok(response.into_json::<HealthCheckResponse>()?),
+            Err(e) => Err(anyhow!("{}", e))
         }
     }
 

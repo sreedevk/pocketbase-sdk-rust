@@ -1,10 +1,10 @@
 [package]
 name        = "pocketbase-sdk"
-version     = "0.0.9"
+version     = "0.1.1"
 edition     = "2021"
 authors     = ["Sreedev Kodichath <sreedev@icloud.com>", "CubeCoder <markus.hamacher16@gmail.com>"]
 license     = "MIT"
-description = "WebAsm Compatible Pocketbase SDK"
+description = "Pocketbase SDK"
 readme      = "README.md"
 homepage    = "https://github.com/sreedevk/pocketbase-sdk-rust"
 categories  = ["development-tools"]
