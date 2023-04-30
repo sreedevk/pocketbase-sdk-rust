@@ -14,13 +14,11 @@ or add the following to your `Cargo.toml`
 
 ```toml
 [dependencies]
-pocketbase-sdk = "0.0.7"
+pocketbase-sdk = "0.1.1"
 serde = { version = "1.0.145", features = ["derive"] }
 ```
 
 # Usage
-
-### Collections
 
 ```rust
 use anyhow::Result;
