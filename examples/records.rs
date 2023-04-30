@@ -1,5 +1,5 @@
 use anyhow::Result;
-use pocketbase_sdk::client::{Client, Credentials};
+use pocketbase_sdk::client::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Default)]
@@ -19,9 +19,11 @@ fn main() -> Result<()> {
     env_logger::init();
 
     /* Authenticate Client */
-    let client = Client::new("http://localhost:8090");
-    let credentials = Credentials::new("users", "sreedev@icloud.com", "Sreedev123");
-    let authenticated_client = client.authenticate_with_password(credentials)?;
+    let authenticated_client = Client::new("http://localhost:8090").authenticate_with_password(
+        "users",
+        "sreedev@icloud.com",
+        "Sreedev123",
+    )?;
 
     /* List Products */
     let products = authenticated_client
