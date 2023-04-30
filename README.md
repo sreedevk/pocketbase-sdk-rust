@@ -4,6 +4,9 @@ A Rust SDK for Pocketbase Clients. Pocketbase is an open source backend for your
 
 #### Currently Compatible with Pocketbase Version 0.15.1
 
+#### NOTE
+Version 0.1.1 of pocketbase SDK is complete reimplementation and is not compatible with the previous versions. The sytax has modified to be more minimalistic. This has been done to make pocketbase-sdk more user-friendly & to facilitate continued maintenance of pocketbase-sdk.  
+
 # Installation
 
 ```bash
