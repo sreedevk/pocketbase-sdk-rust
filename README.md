@@ -1,106 +1,217 @@
-<h3 align="center">Pocketbase SDK</h3>
+### Pocketbase SDK
 
-<p align="center">
-  A Rust SDK for Pocketbase Clients. Pocketbase is an open source backend for your SaaS & Mobile Applications.
-  The Goal of this project is to create a wrapper around the APIs that Pocketbase exposes to abstract away
-  unnecessary details of implementation, so that you can focus on building your app and not worry about integration
-  with pocketbase.  
-</p>
+A Rust SDK for Pocketbase Clients. Pocketbase is an open source backend for your SaaS & Mobile Applications. The Goal of this project is to create a wrapper around the APIs that Pocketbase exposes to abstract away unnecessary details of implementation, so that you can focus on building your app and not worry about integration with pocketbase.  
 
-<p>
-Pocketbase SDK currently only known to work on x86 targets. So essentially only CLI/Native applications can be built using Pocketbase SDK. But WebAsm support is on the <a href="#Roadmap">Roadmap</a>
-</p>
+#### Currently Compatible with Pocketbase Version 0.15.1
 
-#### Currently Compatible with Pocketbase Version 0.10.3
+#### NOTE
+Version 0.1.1 of pocketbase SDK is complete reimplementation and is not compatible with the previous versions. The sytax has modified to be more minimalistic. This has been done to make pocketbase-sdk more user-friendly & to facilitate continued maintenance of pocketbase-sdk.  
 
 # Installation
 
 ```bash
   $ cargo add pocketbase-sdk
+  $ cargo add serde
 ```
 or add the following to your `Cargo.toml`
 
 ```toml
 [dependencies]
-pocketbase-sdk = "0.0.8"
-tokio = { version = "1", features = ["full"] }
+pocketbase-sdk = "0.1.1"
 serde = { version = "1.0.145", features = ["derive"] }
 ```
 
 # Usage
 
-Note: You need to have a table created called "posts" inside of your repository for this code to work which must contain the files "title, content, author, created, updated". To use this in your own script what you want to do is modify the struct to have the data that you have, modify the variable name which here is named post to the variable your passing in our creating.
 ```rust
-use serde::{Serialize, Deserialize};
-use pocketbase_sdk::client::Client;
-use pocketbase_sdk::user::UserTypes;
-use pocketbase_sdk::records::operations::{
-  list, view, delete, create
-};
+use anyhow::Result;
+use pocketbase_sdk::admin::Admin;
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Post {
-  title: String,
-  content: String,
-  created: String,
-  updated: String,
-  author: String,
-}
+fn main() -> Result<()> {
+    env_logger::init();
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /* new client + authentication */
-    let mut client = Client::new("http://localhost:8090/api/").unwrap();
-    let auth = client.auth_via_email(
-        String::from("sreedev@icloud.com"),
-        String::from("Admin@123"),
-        UserTypes::User /* use UserTypes::Admin for admin Authentication */
-    ).await;
-    assert!(auth.is_ok());
+    // admin authentication
+    let authenticated_admin_client = Admin::new("http://localhost:8090")
+        .auth_with_password("sreedev@icloud.com", "Sreedev123")?;
 
-    /* create record */
-    let post = Post {
-      title: "Sample title".to_string(),
-      content: "Sample Content".to_string(),
-      author: "Sample Author".to_string(),
-      created: "".to_string(),
-      updated: "".to_string()
-    };
+    // collections list + Filter
+    let collections = authenticated_admin_client
+        .collections()
+        .list()
+        .page(1)
+        .per_page(100)
+        .call()?;
 
-    let repsonse = create::record::<Post>("posts", &post, &client).await.unwrap();
-    match repsonse {
-        create::CreateResponse::SuccessResponse(res) => {
-            assert_eq!(res.title, String::from("Sample title"))
-        },
-        create::CreateResponse::FailureResponse(_err) => panic!("Failed!")
-    }
+    dbg!(collections);
 
-    /* view record */
-    let repsonse = view::record::<Post>("posts", "9bbl183t7ioqrea", &client).await.unwrap();
-    match repsonse {
-        view::ViewResponse::SuccessResponse(res) => println!("9bbl183t7ioqrea"),
-        view::ViewResponse::ErrorResponse(_err) => panic!("Failed!")
-    }
+    // view collection
+    let user_collection = authenticated_admin_client
+        .collections()
+        .view("users")
+        .call()?;
 
-    /* list paginated records */
-    let response = list::records::<Post>("posts", &client).await.unwrap();
-    match response {
-      list::ListResponse::SuccessResponse(paginated_record_list) => {
-        assert_ne!(paginated_record_list.total_items, 0)
-      },
-      list::ListResponse::ErrorResponse(_e) => panic!("could not retrieve resource.")
-    }
-
-    /* delete a record */
-    let response = delete::record("posts", "9bbl183t7ioqrea", &client).await;
-    assert!(response.is_ok());
+    dbg!(user_collection);
 
     Ok(())
 }
 ```
-# Roadmap
-1. WebAsm Support [(v0.1.7)](https://github.com/sreedevk/pocketbase-sdk-rust/pull/9)
-2. Support Record File Attachments Upload [#11](https://github.com/sreedevk/pocketbase-sdk-rust/issues/11)
-3. Admin Tools: Logs
-4. Admin Tools: Settings
-5. Support Pocketbase Realtime APIs
+
+### Records
+```rust
+use anyhow::Result;
+use pocketbase_sdk::client::Client;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Deserialize, Default)]
+pub struct Product {
+    pub id: String,
+    pub name: String,
+    pub count: i32,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct NewProduct {
+    pub name: String,
+    pub count: i32,
+}
+
+fn main() -> Result<()> {
+    env_logger::init();
+
+    /* Authenticate Client */
+    let authenticated_client = Client::new("http://localhost:8090").auth_with_password(
+        "users",
+        "sreedev@icloud.com",
+        "Sreedev123",
+    )?;
+
+    /* List Products */
+    let products = authenticated_client
+        .records("products")
+        .list()
+        .call::<Product>()?;
+    dbg!(products);
+
+    /* View Product */
+    let product = authenticated_client
+        .records("products")
+        .view("jme4ixxqie2f9ho")
+        .call::<Product>()?;
+    dbg!(product);
+
+    /* Create Product */
+    let new_product = NewProduct {
+        name: String::from("bingo"),
+        count: 69420,
+    };
+    let create_response = authenticated_client
+        .records("products")
+        .create(new_product)
+        .call()?;
+    dbg!(&create_response);
+
+    /* Update Product */
+    let updated_product = NewProduct {
+        name: String::from("bango"),
+        count: 69420,
+    };
+    let update_response = authenticated_client
+        .records("products")
+        .update(create_response.id.as_str(), updated_product)
+        .call()?;
+
+    dbg!(update_response);
+
+    /* Delete Product */
+    authenticated_client
+        .records("products")
+        .destroy(create_response.id.as_str())
+        .call()?;
+
+    Ok(())
+}
+```
+
+### Logs
+
+```rust
+use anyhow::Result;
+use pocketbase_sdk::admin::Admin;
+
+fn main() -> Result<()> {
+    env_logger::init();
+
+    // admin authentication
+    let admin = Admin::new("http://localhost:8090")
+        .auth_with_password("sreedev@icloud.com", "Sreedev123")?;
+
+    // list logs
+    let logs = admin.logs().list().page(1).per_page(10).call()?;
+    dbg!(&logs);
+
+    // view log
+    let somelogid = &logs.items[0].id;
+    let logitem = admin.logs().view(somelogid).call()?;
+    dbg!(logitem);
+
+    // view log statistics data points
+    let logstats = admin.logs().statistics().call()?;
+    dbg!(logstats);
+
+    Ok(())
+}
+```
+
+### HealthCheck
+
+```rust
+use anyhow::Result;
+use pocketbase_sdk::client::Client;
+
+fn main() -> Result<()> {
+    let client = Client::new("http://localhost:8090");
+    let health_check_response = client.health_check()?;
+    dbg!(health_check_response);
+
+    Ok(())
+}
+```
+
+# Development TODOs
+* [ ] Improve Test Coverage
+* [ ] Collections
+    * [x] List Collections
+    * [x] View Collection
+    * [ ] Create Collection
+    * [ ] Auth Refresh
+    * [ ] Request Password Reset
+    * [ ] Confirm Password Reset
+    * [ ] List Admins
+    * [ ] View Admin
+    * [ ] Create Admin
+    * [ ] Update Admin
+    * [ ] Delete Admin
+* [ ] Files
+    * [ ] Download / Fetch File
+    * [ ] Generate Protected File Token
+* [ ] Records
+    * [x] Create Records
+    * [x] Update Records
+    * [x] Delete Records
+    * [ ] Bulk Delete Records
+    * [ ] List Auth Methods
+    * [ ] Auth with OAuth2
+    * [ ] Auth Refresh
+    * [ ] Request Verification
+    * [ ] Confirm Verification
+    * [ ] Request Password Reset
+    * [ ] Request Email Change
+    * [ ] Confirm Email Change
+    * [ ] List Linked External Auth Providers
+    * [ ] Unlink External Auth Provider
+* [ ] Real Time APIs
+* [ ] WebAsm Support
+* [ ] Settings
+    * [ ] List
+    * [ ] Update
+* [x] Health Check
