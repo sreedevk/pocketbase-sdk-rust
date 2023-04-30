@@ -175,7 +175,7 @@ fn main() -> Result<()> {
 ```
 
 # Development TODOs
-
+* [ ] Improve Test Coverage
 * [ ] Collections
     * [x] List Collections
     * [x] View Collection
