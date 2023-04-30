@@ -14,7 +14,6 @@ pub struct Field {
     pub unique: bool,
 }
 
-
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FieldDeclaration<'a> {
@@ -62,13 +61,14 @@ pub struct CollectionDetails<'a> {
     pub create_rule: Option<String>,
     pub update_rule: Option<String>,
     pub delete_rule: Option<String>,
-    pub indexes: Vec<String>
+    pub indexes: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
 pub struct CollectionCreateRequestBuilder<'a> {
     pub client: &'a Client<Auth>,
-    pub collection_details: Option<CollectionDetails<'a>>
+    pub collection_name: &'a str,
+    pub collection_details: Option<CollectionDetails<'a>>,
 }
 
 #[derive(Clone, Debug)]
@@ -91,8 +91,12 @@ impl<'a> CollectionListRequestBuilder<'a> {
         let url = format!("{}/api/collections", self.client.base_url);
         let mut build_opts: Vec<(&str, &str)> = Vec::new();
 
-        if let Some(filter_opts) = &self.filter { build_opts.push(("filter", filter_opts)) }
-        if let Some(sort_opts) = &self.sort { build_opts.push(("sort", sort_opts)) }
+        if let Some(filter_opts) = &self.filter {
+            build_opts.push(("filter", filter_opts))
+        }
+        if let Some(sort_opts) = &self.sort {
+            build_opts.push(("sort", sort_opts))
+        }
         let per_page_opts = self.per_page.to_string();
         let page_opts = self.page.to_string();
         build_opts.push(("per_page", per_page_opts.as_str()));
@@ -145,7 +149,11 @@ impl<'a> CollectionsManager<'a> {
     }
 
     pub fn create(&self, name: &'a str) -> CollectionCreateRequestBuilder {
-       CollectionCreateRequestBuilder { client: self.client, collection_details: None } 
+        CollectionCreateRequestBuilder {
+            client: self.client,
+            collection_details: None,
+            collection_name: name,
+        }
     }
 
     pub fn list(&self) -> CollectionListRequestBuilder {
