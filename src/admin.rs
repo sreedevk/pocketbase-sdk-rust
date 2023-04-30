@@ -1,10 +1,9 @@
 use crate::client::Auth;
 use crate::client::Client;
-use crate::errors::AuthError;
 use crate::httpc::Httpc;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use serde::Deserialize;
-use std::collections::HashMap;
+use serde_json::json;
 
 pub struct Admin;
 
@@ -16,12 +15,12 @@ struct AuthSuccessResponse {
 impl Admin {
     pub fn new(base_url: &str, identifier: &str, secret: &str) -> Result<Client<Auth>> {
         let url = format!("{}/api/admins/auth-with-password", base_url);
-        let mut req_body: HashMap<String, String> = HashMap::new();
-        req_body.insert("identity".to_string(), identifier.to_string());
-        req_body.insert("password".to_string(), secret.to_string());
-
+        let credentials = json!({
+            "identity": identifier,
+            "password": secret,
+        });
         let client = Client::new(base_url);
-        match Httpc::post(&client, &url, req_body) {
+        match Httpc::post(&client, &url, credentials.to_string()) {
             Ok(response) => {
                 let raw_response = response.into_json::<AuthSuccessResponse>();
                 match raw_response {
@@ -30,10 +29,10 @@ impl Admin {
                         state: Auth,
                         auth_token: Some(token),
                     }),
-                    Err(_) => Err(AuthError::AuthResponseParseFailed.into()),
+                    Err(e) => Err(anyhow!("{}", e)),
                 }
             }
-            Err(_) => Err(AuthError::AuthenticationFailed.into()),
+            Err(e) => Err(anyhow!("{}", e)),
         }
     }
 }

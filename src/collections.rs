@@ -1,9 +1,7 @@
 use crate::client::{Auth, Client};
 use crate::httpc::Httpc;
-use crate::types::FieldType;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

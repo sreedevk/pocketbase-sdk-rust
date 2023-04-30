@@ -1,8 +1,8 @@
 use crate::client::{Auth, Client};
 use crate::httpc::Httpc;
 use anyhow::{anyhow, Result};
+use serde::Serialize;
 use serde::{de::DeserializeOwned, Deserialize};
-use ureq::Response;
 
 #[derive(Debug, Clone)]
 pub struct RecordsManager<'a> {
@@ -141,6 +141,38 @@ pub struct RecordDeleteAllRequestBuilder<'a> {
     pub filter: Option<&'a str>,
 }
 
+#[derive(Debug, Clone)]
+pub struct RecordCreateRequestBuilder<'a, T: Serialize + Clone>{
+    pub client: &'a Client<Auth>,
+    pub collection_name: &'a str,
+    pub record: T,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct CreateResponse {
+    #[serde(rename = "@collectionName")]
+    pub collection_name: Option<String>,
+    #[serde(rename = "@collectionId")]
+    pub collection_id: Option<String>,
+    pub id: String,
+    pub updated: String,
+    pub created: String,
+}
+
+impl<'a, T: Serialize + Clone> RecordCreateRequestBuilder<'a, T> {
+    pub fn call(&self) -> Result<CreateResponse> {
+        let url = format!("{}/api/collections/{}/records", self.client.base_url, self.collection_name);
+        let payload = serde_json::to_string(&self.record).map_err(anyhow::Error::from)?;
+        match Httpc::post(self.client, &url, payload) {
+            Ok(result) => {
+                let response = result.into_json::<CreateResponse>()?;
+                Ok(response)
+            }
+            Err(e) => Err(anyhow!("error: {}", e)),
+        }
+    }
+}
+
 impl<'a> RecordsManager<'a> {
     pub fn view(&self, identifier: &'a str) -> RecordViewRequestBuilder<'a> {
         RecordViewRequestBuilder {
@@ -153,6 +185,14 @@ impl<'a> RecordsManager<'a> {
     pub fn destroy(&self, identifier: &'a str) -> RecordDestroyRequestBuilder<'a> {
         RecordDestroyRequestBuilder {
             identifier,
+            client: self.client,
+            collection_name: self.name,
+        }
+    }
+
+    pub fn create<T: Serialize + Clone>(&self, record: T) -> RecordCreateRequestBuilder<'a, T> {
+        RecordCreateRequestBuilder {
+            record,
             client: self.client,
             collection_name: self.name,
         }

@@ -1,15 +1,16 @@
+use crate::{collections::CollectionsManager, httpc::Httpc};
+use crate::{logs::LogsManager, records::RecordsManager};
+use anyhow::{anyhow, Result};
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::collections::HashMap;
-use crate::{errors::AuthError, logs::LogsManager, records::RecordsManager};
-use anyhow::Result;
-use serde::Deserialize;
-use crate::{httpc::Httpc, collections::CollectionsManager};
 
 #[derive(Debug, Deserialize)]
 struct AuthSuccessResponse {
     token: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Credentials {
     collection: String,
     identifier: String,
@@ -25,12 +26,12 @@ impl Credentials {
         }
     }
 
-    pub fn to_request_body(&self) -> HashMap<String, String> {
+    pub fn to_request_body(&self) -> Result<String, serde_json::Error> {
         let mut body = HashMap::new();
         body.insert("identity".to_string(), self.identifier.clone());
         body.insert("password".to_string(), self.secret.clone());
 
-        body
+        serde_json::to_string(&body)
     }
 }
 
@@ -49,15 +50,18 @@ pub struct Client<State = NoAuth> {
 
 impl Client<Auth> {
     pub fn collections(&self) -> CollectionsManager {
-        CollectionsManager { client: self } 
-    } 
+        CollectionsManager { client: self }
+    }
 
     pub fn logs(&self) -> LogsManager {
         LogsManager { client: self }
     }
 
     pub fn records(&self, record_name: &'static str) -> RecordsManager {
-        RecordsManager {  client: self, name: record_name }
+        RecordsManager {
+            client: self,
+            name: record_name,
+        }
     }
 }
 
@@ -70,16 +74,18 @@ impl Client<NoAuth> {
         }
     }
 
-    pub fn authenticate_with_password(
-        &self,
-        auth_info: Credentials,
-    ) -> Result<Client<Auth>, AuthError> {
+    pub fn authenticate_with_password(&self, auth_info: Credentials) -> Result<Client<Auth>> {
         let url = format!(
             "{}/api/collections/{}/auth-with-password",
             self.base_url, auth_info.collection
         );
 
-        match Httpc::post(self, &url, auth_info.to_request_body()) {
+        let auth_payload = json!({
+            "identity": auth_info.identifier,
+            "password": auth_info.secret
+        });
+
+        match Httpc::post(self, &url, auth_payload.to_string()) {
             Ok(response) => {
                 let raw_response = response.into_json::<AuthSuccessResponse>();
                 match raw_response {
@@ -88,10 +94,10 @@ impl Client<NoAuth> {
                         state: Auth,
                         auth_token: Some(token),
                     }),
-                    Err(_) => Err(AuthError::AuthResponseParseFailed),
+                    Err(e) => Err(anyhow!("{}", e)),
                 }
             }
-            Err(_) => Err(AuthError::AuthenticationFailed),
+            Err(e) => Err(anyhow!("{}", e)),
         }
     }
 }
