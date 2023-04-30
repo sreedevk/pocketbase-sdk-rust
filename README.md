@@ -76,7 +76,7 @@ fn main() -> Result<()> {
     env_logger::init();
 
     /* Authenticate Client */
-    let authenticated_client = Client::new("http://localhost:8090").authenticate_with_password(
+    let authenticated_client = Client::new("http://localhost:8090").auth_with_password(
         "users",
         "sreedev@icloud.com",
         "Sreedev123",
