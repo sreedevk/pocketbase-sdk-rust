@@ -1,11 +1,7 @@
 use std::collections::HashMap;
 use crate::{errors::AuthError, logs::LogsManager, records::RecordsManager};
-
 use anyhow::Result;
-use log::{error, info};
 use serde::Deserialize;
-use ureq::Response;
-
 use crate::{httpc::Httpc, collections::CollectionsManager};
 
 #[derive(Debug, Deserialize)]
@@ -95,7 +91,7 @@ impl Client<NoAuth> {
                     Err(_) => Err(AuthError::AuthResponseParseFailed),
                 }
             }
-            Err(e) => Err(AuthError::AuthenticationFailed),
+            Err(_) => Err(AuthError::AuthenticationFailed),
         }
     }
 }

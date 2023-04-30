@@ -19,5 +19,7 @@ fn main() -> Result<()> {
     dbg!(products);
     dbg!(product);
 
+    authenticated_client.records("products").call()?;
+
     Ok(())
 }

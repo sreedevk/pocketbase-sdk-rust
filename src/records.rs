@@ -1,7 +1,8 @@
 use crate::client::{Auth, Client};
-use anyhow::Result;
 use crate::httpc::Httpc;
-use serde::{Deserialize, de::DeserializeOwned};
+use anyhow::{anyhow, Result};
+use serde::{de::DeserializeOwned, Deserialize};
+use ureq::Response;
 
 #[derive(Debug, Clone)]
 pub struct RecordsManager<'a> {
@@ -30,8 +31,24 @@ pub struct RecordList<T> {
 
 impl<'a> RecordsListRequestBuilder<'a> {
     pub fn call<T: Default + DeserializeOwned>(&self) -> Result<RecordList<T>> {
-        let url = format!("{}/api/collections/{}/records", self.client.base_url, self.collection_name);
-        match Httpc::get(self.client, &url, None) {
+        let url = format!(
+            "{}/api/collections/{}/records",
+            self.client.base_url, self.collection_name
+        );
+
+        let mut build_opts: Vec<(&str, &str)> = vec![];
+        if let Some(filter_opts) = &self.filter {
+            build_opts.push(("filter", filter_opts))
+        }
+        if let Some(sort_opts) = &self.sort {
+            build_opts.push(("sort", sort_opts))
+        }
+        let per_page_opts = self.per_page.to_string();
+        let page_opts = self.page.to_string();
+        build_opts.push(("per_page", per_page_opts.as_str()));
+        build_opts.push(("page", page_opts.as_str()));
+
+        match Httpc::get(self.client, &url, Some(build_opts)) {
             Ok(result) => {
                 let response = result.into_json::<RecordList<T>>()?;
                 Ok(response)
@@ -77,20 +94,64 @@ pub struct RecordViewRequestBuilder<'a> {
 
 impl<'a> RecordViewRequestBuilder<'a> {
     pub fn call<T: Default + DeserializeOwned>(&self) -> Result<T> {
-        let url = format!("{}/api/collections/{}/records/{}", self.client.base_url, self.collection_name, self.identifier);
+        let url = format!(
+            "{}/api/collections/{}/records/{}",
+            self.client.base_url, self.collection_name, self.identifier
+        );
         match Httpc::get(self.client, &url, None) {
             Ok(result) => {
                 let response = result.into_json::<T>()?;
                 Ok(response)
             }
-            Err(e) => Err(e),
+            Err(e) => Err(anyhow!("error: {}", e)),
         }
     }
+}
+
+impl<'a> RecordDestroyRequestBuilder<'a> {
+    pub fn call(&self) -> Result<()> {
+        let url = format!(
+            "{}/api/collections/{}/records/{}",
+            self.client.base_url, self.collection_name, self.identifier
+        );
+        match Httpc::delete(self.client, url.as_str()) {
+            Ok(result) => {
+                if result.status() == 204 {
+                    Ok(())
+                } else {
+                    Err(anyhow!("Failed to delete"))
+                }
+            }
+            Err(e) => Err(anyhow!("error: {}", e)),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct RecordDestroyRequestBuilder<'a> {
+    pub identifier: &'a str,
+    pub client: &'a Client<Auth>,
+    pub collection_name: &'a str,
+}
+
+#[derive(Debug, Clone)]
+pub struct RecordDeleteAllRequestBuilder<'a> {
+    pub client: &'a Client<Auth>,
+    pub collection_name: &'a str,
+    pub filter: Option<&'a str>,
 }
 
 impl<'a> RecordsManager<'a> {
     pub fn view(&self, identifier: &'a str) -> RecordViewRequestBuilder<'a> {
         RecordViewRequestBuilder {
+            identifier,
+            client: self.client,
+            collection_name: self.name,
+        }
+    }
+
+    pub fn destroy(&self, identifier: &'a str) -> RecordDestroyRequestBuilder<'a> {
+        RecordDestroyRequestBuilder {
             identifier,
             client: self.client,
             collection_name: self.name,

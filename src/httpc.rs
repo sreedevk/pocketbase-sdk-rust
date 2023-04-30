@@ -40,4 +40,10 @@ impl Httpc {
             .and_then(|request| Self::attach_auth_info(request, client))
             .and_then(|request| Ok(request.send_json(body_content)?))
     }
+
+    pub fn delete<T>(client: &Client<T>, url: &str) -> Result<Response> {
+        Ok(ureq::delete(url))
+            .and_then(|request| Self::attach_auth_info(request, client))
+            .and_then(|request| Ok(request.call()?))
+    }
 }
