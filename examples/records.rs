@@ -15,7 +15,9 @@ fn main() -> Result<()> {
     let authenticated_client = client.authenticate_with_password(credentials)?;
 
     let products = authenticated_client.records("products").list().call::<Product>()?;
+    let product = authenticated_client.records("products").view("jme4ixxqie2f9ho").call::<Product>()?;
     dbg!(products);
+    dbg!(product);
 
     Ok(())
 }
