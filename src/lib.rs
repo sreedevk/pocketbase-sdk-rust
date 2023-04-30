@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 pub mod client;
 pub mod admin;
 pub mod records;

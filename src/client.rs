@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::{errors::AuthError, logs::LogManager};
+use crate::{errors::AuthError, logs::LogsManager, records::RecordsManager};
 
 use anyhow::Result;
 use log::{error, info};
@@ -56,8 +56,12 @@ impl Client<Auth> {
         CollectionsManager { client: self } 
     } 
 
-    pub fn logs(&self) -> LogManager {
-        LogManager { client: self }
+    pub fn logs(&self) -> LogsManager {
+        LogsManager { client: self }
+    }
+
+    pub fn records(&self, record_name: &'static str) -> RecordsManager {
+        RecordsManager {  client: self, name: record_name }
     }
 }
 

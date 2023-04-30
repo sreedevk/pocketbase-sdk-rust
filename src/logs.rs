@@ -4,7 +4,7 @@ use anyhow::Result;
 use serde::Deserialize;
 use std::collections::HashMap;
 
-pub struct LogManager<'a> {
+pub struct LogsManager<'a> {
     pub client: &'a Client<Auth>,
 }
 
@@ -147,7 +147,7 @@ impl<'a> LogListRequestBuilder<'a> {
     }
 }
 
-impl<'a> LogManager<'a> {
+impl<'a> LogsManager<'a> {
     pub fn list(&self) -> LogListRequestBuilder<'a> {
         LogListRequestBuilder {
             client: self.client,
