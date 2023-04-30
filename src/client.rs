@@ -1,7 +1,7 @@
 use crate::{collections::CollectionsManager, httpc::Httpc};
 use crate::{logs::LogsManager, records::RecordsManager};
 use anyhow::{anyhow, Result};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::json;
 
 #[derive(Debug, Deserialize)]

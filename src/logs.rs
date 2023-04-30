@@ -135,7 +135,7 @@ impl<'a> LogListRequestBuilder<'a> {
         let per_page_opts = self.per_page.to_string();
         let page_opts = self.page.to_string();
         build_opts.push(("per_page", per_page_opts.as_str()));
-        build_opts.push(("page", per_page_opts.as_str()));
+        build_opts.push(("page", page_opts.as_str()));
 
         match Httpc::get(self.client, &url, Some(build_opts)) {
             Ok(result) => {
