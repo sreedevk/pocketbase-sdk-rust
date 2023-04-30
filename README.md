@@ -182,12 +182,32 @@ fn main() -> Result<()> {
     * [x] List Collections
     * [x] View Collection
     * [ ] Create Collection
+    * [ ] Auth Refresh
+    * [ ] Request Password Reset
+    * [ ] Confirm Password Reset
+    * [ ] List Admins
+    * [ ] View Admin
+    * [ ] Create Admin
+    * [ ] Update Admin
+    * [ ] Delete Admin
+* [ ] Files
+    * [ ] Download / Fetch File
+    * [ ] Generate Protected File Token
 * [ ] Records
     * [x] Create Records
     * [x] Update Records
     * [x] Delete Records
     * [ ] Bulk Delete Records
-    * [ ] File Downloads
+    * [ ] List Auth Methods
+    * [ ] Auth with OAuth2
+    * [ ] Auth Refresh
+    * [ ] Request Verification
+    * [ ] Confirm Verification
+    * [ ] Request Password Reset
+    * [ ] Request Email Change
+    * [ ] Confirm Email Change
+    * [ ] List Linked External Auth Providers
+    * [ ] Unlink External Auth Provider
 * [ ] Real Time APIs
 * [ ] WebAsm Support
 * [ ] Settings

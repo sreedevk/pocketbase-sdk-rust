@@ -70,7 +70,7 @@ impl Client<NoAuth> {
         }
     }
 
-    pub fn authenticate_with_password(&self, collection: &str, identifier: &str, secret: &str) -> Result<Client<Auth>> {
+    pub fn auth_with_password(&self, collection: &str, identifier: &str, secret: &str) -> Result<Client<Auth>> {
         let url = format!(
             "{}/api/collections/{}/auth-with-password",
             self.base_url, collection
