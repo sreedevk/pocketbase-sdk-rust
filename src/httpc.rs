@@ -43,4 +43,11 @@ impl Httpc {
             .and_then(|request| Self::attach_auth_info(request, client))
             .and_then(|request| Ok(request.call()?))
     }
+
+    pub fn patch<T>(client: &Client<T>, url: &str, body_content: String) -> Result<Response> {
+        Ok(ureq::patch(url))
+            .and_then(|request| Ok(request.set("Content-Type", "application/json")))
+            .and_then(|request| Self::attach_auth_info(request, client))
+            .and_then(|request| Ok(request.send_string(&body_content.as_str())?))
+    }
 }

@@ -142,7 +142,7 @@ pub struct RecordDeleteAllRequestBuilder<'a> {
 }
 
 #[derive(Debug, Clone)]
-pub struct RecordCreateRequestBuilder<'a, T: Serialize + Clone>{
+pub struct RecordCreateRequestBuilder<'a, T: Serialize + Clone> {
     pub client: &'a Client<Auth>,
     pub collection_name: &'a str,
     pub record: T,
@@ -161,12 +161,39 @@ pub struct CreateResponse {
 
 impl<'a, T: Serialize + Clone> RecordCreateRequestBuilder<'a, T> {
     pub fn call(&self) -> Result<CreateResponse> {
-        let url = format!("{}/api/collections/{}/records", self.client.base_url, self.collection_name);
+        let url = format!(
+            "{}/api/collections/{}/records",
+            self.client.base_url, self.collection_name
+        );
         let payload = serde_json::to_string(&self.record).map_err(anyhow::Error::from)?;
         match Httpc::post(self.client, &url, payload) {
             Ok(result) => {
                 let response = result.into_json::<CreateResponse>()?;
                 Ok(response)
+            }
+            Err(e) => Err(anyhow!("error: {}", e)),
+        }
+    }
+}
+
+pub struct RecordUpdateRequestBuilder<'a, T: Serialize + Clone> {
+    pub record: T,
+    pub collection_name: &'a str,
+    pub client: &'a Client<Auth>,
+    pub id: &'a str,
+}
+
+impl<'a, T: Serialize + Clone> RecordUpdateRequestBuilder<'a, T> {
+    pub fn call(&self) -> Result<T> {
+        let url = format!(
+            "{}/api/collections/{}/records/{}",
+            self.client.base_url, self.collection_name, self.id
+        );
+        let payload = serde_json::to_string(&self.record).map_err(anyhow::Error::from)?;
+        match Httpc::patch(self.client, &url, payload) {
+            Ok(result) => {
+                result.into_json::<CreateResponse>()?;
+                Ok(self.record.clone())
             }
             Err(e) => Err(anyhow!("error: {}", e)),
         }
@@ -187,6 +214,19 @@ impl<'a> RecordsManager<'a> {
             identifier,
             client: self.client,
             collection_name: self.name,
+        }
+    }
+
+    pub fn update<T: Serialize + Clone>(
+        &self,
+        identifier: &'a str,
+        record: T,
+    ) -> RecordUpdateRequestBuilder<'a, T> {
+        RecordUpdateRequestBuilder {
+            client: self.client,
+            collection_name: self.name,
+            id: identifier,
+            record,
         }
     }
 
