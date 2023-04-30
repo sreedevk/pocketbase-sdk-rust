@@ -1,2 +1,5 @@
 /target
 /Cargo.lock
+/pb_data
+/pb_migrations
+/pocketbase
