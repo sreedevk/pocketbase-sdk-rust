@@ -20,11 +20,11 @@ impl Httpc {
     ) -> Result<Response> {
         Ok(ureq::get(url))
             .and_then(|request| Self::attach_auth_info(request, client))
-            .and_then(|request| {
+            .map(|request| {
                 if let Some(pairs) = query_params {
-                    Ok(request.query_pairs(pairs))
+                    request.query_pairs(pairs)
                 } else {
-                    Ok(request)
+                    request
                 }
             })
             .and_then(|request| Ok(request.call()?))
@@ -32,7 +32,7 @@ impl Httpc {
 
     pub fn post<T>(client: &Client<T>, url: &str, body_content: String) -> Result<Response> {
         Ok(ureq::post(url))
-            .and_then(|request| Ok(request.set("Content-Type", "application/json")))
+            .map(|request| request.set("Content-Type", "application/json"))
             .and_then(|request| Self::attach_auth_info(request, client))
             .and_then(|request| Ok(request.send_string(body_content.as_str())?))
     }
@@ -45,8 +45,8 @@ impl Httpc {
 
     pub fn patch<T>(client: &Client<T>, url: &str, body_content: String) -> Result<Response> {
         Ok(ureq::patch(url))
-            .and_then(|request| Ok(request.set("Content-Type", "application/json")))
+            .map(|request| request.set("Content-Type", "application/json"))
             .and_then(|request| Self::attach_auth_info(request, client))
-            .and_then(|request| Ok(request.send_string(&body_content.as_str())?))
+            .and_then(|request| Ok(request.send_string(body_content.as_str())?))
     }
 }
