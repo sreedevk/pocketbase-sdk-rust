@@ -2,6 +2,7 @@ use crate::client::{Auth, Client};
 use crate::httpc::Httpc;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use chrono::{DateTime, Utc};
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -35,9 +36,9 @@ pub struct CollectionList {
 #[serde(rename_all = "camelCase")]
 pub struct Collection {
     pub id: String,
-    pub created: String,
+    pub created: DateTime<Utc>,
     pub r#type: String,
-    pub updated: String,
+    pub updated: DateTime<Utc>,
     pub name: String,
     pub schema: Vec<Field>,
 }

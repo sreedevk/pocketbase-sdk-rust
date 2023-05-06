@@ -7,6 +7,7 @@ pub struct Product {
     pub id: String,
     pub name: String,
     pub count: i32,
+    pub created: chrono::DateTime<chrono::Utc>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -31,6 +32,10 @@ fn main() -> Result<()> {
         .list()
         .call::<Product>()?;
     dbg!(products);
+
+    /* List Products with filter */
+    let filtered_products = authenticated_client.records("products").list().filter("count < 6000").call::<Product>()?;
+    dbg!(filtered_products);
 
     /* View Product */
     let product = authenticated_client

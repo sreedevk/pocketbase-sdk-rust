@@ -13,6 +13,7 @@ fn main() -> Result<()> {
         .collections()
         .list()
         .page(1)
+        .filter("name = 'employees'".to_string())
         .per_page(100)
         .call()?;
 

@@ -17,6 +17,7 @@ keywords    = [
 
 [dependencies]
 anyhow = "1.0.70"
+chrono = { version = "0.4.24", features = ["serde"] }
 env_logger = "0.10.0"
 log = "0.4.17"
 serde = { version = "1.0.145", features = ["derive"] }

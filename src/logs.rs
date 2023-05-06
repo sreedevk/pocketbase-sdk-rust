@@ -3,6 +3,7 @@ use crate::httpc::Httpc;
 use anyhow::Result;
 use serde::Deserialize;
 use std::collections::HashMap;
+use chrono::{DateTime, Utc};
 
 pub struct LogsManager<'a> {
     pub client: &'a Client<Auth>,
@@ -33,8 +34,8 @@ pub struct LogStatisticsRequestBuilder<'a> {
 #[serde(rename_all = "camelCase")]
 pub struct LogListItem {
     pub id: String,
-    pub created: String,
-    pub updated: String,
+    pub created: DateTime<Utc>,
+    pub updated: DateTime<Utc>,
     pub url: String,
     pub method: String,
     pub status: i32,
