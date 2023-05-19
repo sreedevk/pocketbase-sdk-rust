@@ -7,6 +7,7 @@ use serde_json::json;
 
 pub struct Admin<'a> {
     pub base_url: &'a str,
+    pub httpc: Httpc,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -22,7 +23,7 @@ impl<'a> Admin<'a> {
             "password": secret,
         });
         let client = Client::new(self.base_url);
-        match Httpc::post(&client, &url, credentials.to_string()) {
+        match self.httpc.post(&client, &url, credentials.to_string()) {
             Ok(response) => {
                 let raw_response = response.into_json::<AuthSuccessResponse>();
                 match raw_response {
@@ -30,6 +31,7 @@ impl<'a> Admin<'a> {
                         base_url: self.base_url.to_string(),
                         state: Auth,
                         auth_token: Some(token),
+                        httpc: self.httpc.clone(),
                     }),
                     Err(e) => Err(anyhow!("{}", e)),
                 }
@@ -39,6 +41,9 @@ impl<'a> Admin<'a> {
     }
 
     pub fn new(base_url: &'a str) -> Admin<'a> {
-        Admin { base_url }
+        Admin {
+            base_url,
+            httpc: Httpc::new(),
+        }
     }
 }

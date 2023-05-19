@@ -103,7 +103,7 @@ impl<'a> CollectionListRequestBuilder<'a> {
         build_opts.push(("per_page", per_page_opts.as_str()));
         build_opts.push(("page", page_opts.as_str()));
 
-        match Httpc::get(self.client, &url, Some(build_opts)) {
+        match self.client.httpc.get(self.client, &url, Some(build_opts)) {
             Ok(result) => {
                 let response = result.into_json::<CollectionList>()?;
                 Ok(response)
@@ -171,7 +171,7 @@ impl<'a> CollectionsManager<'a> {
 impl<'a> CollectionViewRequestBuilder<'a> {
     pub fn call(&self) -> Result<Collection> {
         let url = format!("{}/api/collections/{}", self.client.base_url, self.name);
-        match Httpc::get(self.client, &url, None) {
+        match self.client.httpc.get(self.client, &url, None) {
             Ok(result) => {
                 let response = result.into_json::<Collection>()?;
                 Ok(response)

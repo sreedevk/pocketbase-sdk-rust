@@ -48,7 +48,7 @@ impl<'a> RecordsListRequestBuilder<'a> {
         build_opts.push(("per_page", per_page_opts.as_str()));
         build_opts.push(("page", page_opts.as_str()));
 
-        match Httpc::get(self.client, &url, Some(build_opts)) {
+        match self.client.httpc.get(self.client, &url, Some(build_opts)) {
             Ok(result) => {
                 let response = result.into_json::<RecordList<T>>()?;
                 Ok(response)
@@ -98,7 +98,7 @@ impl<'a> RecordViewRequestBuilder<'a> {
             "{}/api/collections/{}/records/{}",
             self.client.base_url, self.collection_name, self.identifier
         );
-        match Httpc::get(self.client, &url, None) {
+        match self.client.httpc.get(self.client, &url, None) {
             Ok(result) => {
                 let response = result.into_json::<T>()?;
                 Ok(response)
@@ -114,7 +114,7 @@ impl<'a> RecordDestroyRequestBuilder<'a> {
             "{}/api/collections/{}/records/{}",
             self.client.base_url, self.collection_name, self.identifier
         );
-        match Httpc::delete(self.client, url.as_str()) {
+        match self.client.httpc.delete(self.client, url.as_str()) {
             Ok(result) => {
                 if result.status() == 204 {
                     Ok(())
@@ -166,7 +166,7 @@ impl<'a, T: Serialize + Clone> RecordCreateRequestBuilder<'a, T> {
             self.client.base_url, self.collection_name
         );
         let payload = serde_json::to_string(&self.record).map_err(anyhow::Error::from)?;
-        match Httpc::post(self.client, &url, payload) {
+        match self.client.httpc.post(self.client, &url, payload) {
             Ok(result) => {
                 let response = result.into_json::<CreateResponse>()?;
                 Ok(response)
@@ -190,7 +190,7 @@ impl<'a, T: Serialize + Clone> RecordUpdateRequestBuilder<'a, T> {
             self.client.base_url, self.collection_name, self.id
         );
         let payload = serde_json::to_string(&self.record).map_err(anyhow::Error::from)?;
-        match Httpc::patch(self.client, &url, payload) {
+        match self.client.httpc.patch(self.client, &url, payload) {
             Ok(result) => {
                 result.into_json::<CreateResponse>()?;
                 Ok(self.record.clone())

@@ -20,6 +20,7 @@ pub struct Client<State = NoAuth> {
     pub base_url: String,
     pub auth_token: Option<String>,
     pub state: State,
+    pub httpc: Httpc,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -35,7 +36,7 @@ impl Client<Auth> {
 
     pub fn health_check(&self) -> Result<HealthCheckResponse> {
         let url = format!("{}/api/health", self.base_url);
-        match Httpc::get(self, &url, None) {
+        match self.httpc.get(self, &url, None) {
             Ok(response) => Ok(response.into_json::<HealthCheckResponse>()?),
             Err(e) => Err(anyhow!("{}", e))
         }
@@ -59,12 +60,13 @@ impl Client<NoAuth> {
             base_url: base_url.to_string(),
             auth_token: None,
             state: NoAuth,
+            httpc: Httpc::new(),
         }
     }
 
     pub fn health_check(&self) -> Result<HealthCheckResponse> {
         let url = format!("{}/api/health", self.base_url);
-        match Httpc::get(self, &url, None) {
+        match self.httpc.get(self, &url, None) {
             Ok(response) => Ok(response.into_json::<HealthCheckResponse>()?),
             Err(e) => Err(anyhow!("{}", e))
         }
@@ -81,7 +83,7 @@ impl Client<NoAuth> {
             "password": secret
         });
 
-        match Httpc::post(self, &url, auth_payload.to_string()) {
+        match self.httpc.post(self, &url, auth_payload.to_string()) {
             Ok(response) => {
                 let raw_response = response.into_json::<AuthSuccessResponse>();
                 match raw_response {
@@ -89,6 +91,7 @@ impl Client<NoAuth> {
                         base_url: self.base_url.clone(),
                         state: Auth,
                         auth_token: Some(token),
+                        httpc: self.httpc.clone(),
                     }),
                     Err(e) => Err(anyhow!("{}", e)),
                 }

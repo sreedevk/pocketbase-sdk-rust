@@ -75,7 +75,7 @@ impl<'a> LogStatisticsRequestBuilder<'a> {
             build_opts.push(("filter", filter_opts.to_owned()));
         }
 
-        match Httpc::get(self.client, &url, Some(build_opts)) {
+        match self.client.httpc.get(self.client, &url, Some(build_opts)) {
             Ok(result) => {
                 let response = result.into_json::<Vec<LogStatDataPoint>>()?;
                 Ok(response)
@@ -88,7 +88,7 @@ impl<'a> LogStatisticsRequestBuilder<'a> {
 impl<'a> LogViewRequestBuilder<'a> {
     pub fn call(&self) -> Result<LogListItem> {
         let url = format!("{}/api/logs/requests/{}", self.client.base_url, self.id);
-        match Httpc::get(self.client, &url, None) {
+        match self.client.httpc.get(self.client, &url, None) {
             Ok(result) => {
                 let response = result.into_json::<LogListItem>()?;
                 Ok(response)
@@ -138,7 +138,7 @@ impl<'a> LogListRequestBuilder<'a> {
         build_opts.push(("per_page", per_page_opts.as_str()));
         build_opts.push(("page", page_opts.as_str()));
 
-        match Httpc::get(self.client, &url, Some(build_opts)) {
+        match self.client.httpc.get(self.client, &url, Some(build_opts)) {
             Ok(result) => {
                 let response = result.into_json::<LogList>()?;
                 Ok(response)
