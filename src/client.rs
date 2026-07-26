@@ -1,9 +1,9 @@
+use crate::auth::AuthManager;
 use crate::superusers::SuperUsersManager;
 use crate::{collections::CollectionsManager, httpc::Httpc};
 use crate::{logs::LogsManager, records::RecordsManager};
 use anyhow::{anyhow, Result};
 use serde::Deserialize;
-use serde_json::json;
 
 #[derive(Debug, Clone, Deserialize)]
 pub(crate) struct AuthSuccessResponse {
@@ -30,6 +30,18 @@ pub struct HealthCheckResponse {
 }
 
 impl Client<Auth> {
+    pub(crate) fn authenticated(base_url: String, token: String) -> Self {
+        Self {
+            base_url,
+            auth_token: Some(token),
+            state: Auth,
+        }
+    }
+
+    pub fn auth<'a>(&'a self, collection: &'a str) -> AuthManager<'a, Auth> {
+        AuthManager { client: self, collection }
+    }
+
     pub fn collections(&self) -> CollectionsManager<'_> {
         CollectionsManager { client: self }
     }
@@ -75,30 +87,11 @@ impl Client<NoAuth> {
         }
     }
 
+    pub fn auth<'a>(&'a self, collection: &'a str) -> AuthManager<'a, NoAuth> {
+        AuthManager { client: self, collection }
+    }
+
     pub fn auth_with_password(&self, collection: &str, identifier: &str, secret: &str) -> Result<Client<Auth>> {
-        let url = format!(
-            "{}/api/collections/{}/auth-with-password",
-            self.base_url, collection
-        );
-
-        let auth_payload = json!({
-            "identity": identifier,
-            "password": secret
-        });
-
-        match Httpc::post(self, &url, auth_payload.to_string()) {
-            Ok(response) => {
-                let raw_response = response.into_json::<AuthSuccessResponse>();
-                match raw_response {
-                    Ok(AuthSuccessResponse { token }) => Ok(Client {
-                        base_url: self.base_url.clone(),
-                        state: Auth,
-                        auth_token: Some(token),
-                    }),
-                    Err(e) => Err(anyhow!("{}", e)),
-                }
-            }
-            Err(e) => Err(anyhow!("{}", e)),
-        }
+        self.auth(collection).with_password(identifier, secret)
     }
 }

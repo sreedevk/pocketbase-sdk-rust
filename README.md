@@ -17,7 +17,7 @@ or add the following to your `Cargo.toml`
 
 ```toml
 [dependencies]
-pocketbase-sdk = "0.2.0"
+pocketbase-sdk = "0.3.0"
 serde = { version = "1", features = ["derive"] }
 ```
 
@@ -130,6 +130,21 @@ fn main() -> Result<()> {
 }
 ```
 
+### Auth Flows
+
+```rust
+use pocketbase_sdk::client::Client;
+
+let methods = Client::new("http://localhost:8090").auth("users").list_methods()?;
+
+let otp = Client::new("http://localhost:8090").auth("users").request_otp("user@example.com")?;
+let client = Client::new("http://localhost:8090").auth("users").with_otp(&otp.otp_id, "123456")?;
+
+Client::new("http://localhost:8090").auth("users").request_password_reset("user@example.com")?;
+
+let refreshed = client.auth("users").refresh()?;
+```
+
 ### Logs
 
 ```rust
@@ -191,14 +206,14 @@ fn main() -> Result<()> {
     * [x] Update Records
     * [x] Delete Records
     * [ ] Bulk Delete Records
-    * [ ] List Auth Methods
-    * [ ] Auth with OAuth2
-    * [ ] Auth Refresh
-    * [ ] Request Verification
-    * [ ] Confirm Verification
-    * [ ] Request Password Reset
-    * [ ] Request Email Change
-    * [ ] Confirm Email Change
+    * [x] List Auth Methods
+    * [x] Auth with OAuth2
+    * [x] Auth Refresh
+    * [x] Request Verification
+    * [x] Confirm Verification
+    * [x] Request Password Reset
+    * [x] Request Email Change
+    * [x] Confirm Email Change
     * [ ] List Linked External Auth Providers
     * [ ] Unlink External Auth Provider
 * [ ] Real Time APIs

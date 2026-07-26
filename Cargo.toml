@@ -1,6 +1,6 @@
 [package]
 name        = "pocketbase-sdk"
-version     = "0.2.0"
+version     = "0.3.0"
 edition     = "2021"
 authors     = ["Sreedev Kodichath <sreedev@icloud.com>", "CubeCoder <markus.hamacher16@gmail.com>"]
 license     = "MIT"

@@ -1,6 +1,9 @@
 /// Non Admin Client
 pub mod client;
 
+/// Auth Collection Flows
+pub mod auth;
+
 /// SuperUsers Client - authenticates against the _superusers collection
 pub mod superusers;
 
