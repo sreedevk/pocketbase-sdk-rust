@@ -1,4 +1,5 @@
 use httpmock::prelude::*;
+use httpmock::Method;
 use pocketbase_sdk::client::Client;
 use serde::{Serialize, Deserialize};
 use serde_json::json;
@@ -85,4 +86,136 @@ fn mock_records_server() -> MockServer {
             }));
     });
     server
+}
+
+#[test]
+fn list_records_with_query_params() {
+    let server = MockServer::start();
+    server.mock(|when, then| {
+        when.method(POST).path("/api/collections/users/auth-with-password");
+        then.status(200)
+            .header("content-type", "application/json")
+            .json_body(json!({ "token": "tok", "record": { "id": "u" } }));
+    });
+    server.mock(|when, then| {
+        when.method(GET)
+            .path("/api/collections/posts/records")
+            .query_param("expand", "author")
+            .query_param("fields", "id,title")
+            .query_param("skipTotal", "true");
+        then.status(200)
+            .header("content-type", "application/json")
+            .json_body(json!({ "page": 1, "perPage": 30, "totalItems": 0, "items": [] }));
+    });
+
+    let client = Client::new(server.base_url().as_str())
+        .auth_with_password("users", "i", "p")
+        .unwrap();
+    let result = client
+        .records("posts")
+        .list()
+        .expand("author")
+        .fields("id,title")
+        .skip_total(true)
+        .call::<Record>();
+    assert!(result.is_ok());
+}
+
+#[test]
+fn view_record_with_expand() {
+    let server = MockServer::start();
+    server.mock(|when, then| {
+        when.method(POST).path("/api/collections/users/auth-with-password");
+        then.status(200)
+            .header("content-type", "application/json")
+            .json_body(json!({ "token": "tok", "record": { "id": "u" } }));
+    });
+    server.mock(|when, then| {
+        when.method(GET)
+            .path("/api/collections/posts/records/rec1")
+            .query_param("expand", "author");
+        then.status(200)
+            .header("content-type", "application/json")
+            .json_body(json!({ "id": "rec1", "title": "hello" }));
+    });
+
+    let client = Client::new(server.base_url().as_str())
+        .auth_with_password("users", "i", "p")
+        .unwrap();
+    let result = client
+        .records("posts")
+        .view("rec1")
+        .expand("author")
+        .call::<Record>();
+    assert!(result.is_ok());
+}
+
+#[test]
+fn create_multipart_uploads_file_and_text() {
+    let server = MockServer::start();
+    server.mock(|when, then| {
+        when.method(POST).path("/api/collections/users/auth-with-password");
+        then.status(200)
+            .header("content-type", "application/json")
+            .json_body(json!({ "token": "tok", "record": { "id": "u" } }));
+    });
+    server.mock(|when, then| {
+        when.method(POST)
+            .path("/api/collections/posts/records")
+            .body_contains("bingo")
+            .body_contains("photo.png");
+        then.status(200)
+            .header("content-type", "application/json")
+            .json_body(json!({
+                "id": "newid",
+                "created": "2022-01-01 10:00:00.000Z",
+                "updated": "2022-01-01 10:00:00.000Z"
+            }));
+    });
+
+    let client = Client::new(server.base_url().as_str())
+        .auth_with_password("users", "i", "p")
+        .unwrap();
+    let response = client
+        .records("posts")
+        .create_multipart()
+        .text("title", "bingo")
+        .file_bytes("image", "photo.png", b"fakeimagebytes".to_vec())
+        .call();
+    assert!(response.is_ok());
+    assert_eq!(response.unwrap().id, "newid");
+}
+
+#[test]
+fn update_multipart_patches_file() {
+    let server = MockServer::start();
+    server.mock(|when, then| {
+        when.method(POST).path("/api/collections/users/auth-with-password");
+        then.status(200)
+            .header("content-type", "application/json")
+            .json_body(json!({ "token": "tok", "record": { "id": "u" } }));
+    });
+    server.mock(|when, then| {
+        when.method(Method::PATCH)
+            .path("/api/collections/posts/records/rec1")
+            .body_contains("bango");
+        then.status(200)
+            .header("content-type", "application/json")
+            .json_body(json!({
+                "id": "rec1",
+                "created": "2022-01-01 10:00:00.000Z",
+                "updated": "2022-01-01 10:00:00.000Z"
+            }));
+    });
+
+    let client = Client::new(server.base_url().as_str())
+        .auth_with_password("users", "i", "p")
+        .unwrap();
+    let response = client
+        .records("posts")
+        .update_multipart("rec1")
+        .text("title", "bango")
+        .call();
+    assert!(response.is_ok());
+    assert_eq!(response.unwrap().id, "rec1");
 }

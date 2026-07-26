@@ -1,4 +1,6 @@
 use crate::auth::AuthManager;
+use crate::batch::BatchRequestBuilder;
+use crate::files::FilesManager;
 use crate::superusers::SuperUsersManager;
 use crate::{collections::CollectionsManager, httpc::Httpc};
 use crate::{logs::LogsManager, records::RecordsManager};
@@ -64,6 +66,14 @@ impl Client<Auth> {
             name: record_name,
         }
     }
+
+    pub fn batch(&self) -> BatchRequestBuilder<'_> {
+        BatchRequestBuilder::new(self)
+    }
+
+    pub fn files(&self) -> FilesManager<'_, Auth> {
+        FilesManager { client: self }
+    }
 }
 
 impl Client<NoAuth> {
@@ -93,5 +103,9 @@ impl Client<NoAuth> {
 
     pub fn auth_with_password(&self, collection: &str, identifier: &str, secret: &str) -> Result<Client<Auth>> {
         self.auth(collection).with_password(identifier, secret)
+    }
+
+    pub fn files(&self) -> FilesManager<'_, NoAuth> {
+        FilesManager { client: self }
     }
 }

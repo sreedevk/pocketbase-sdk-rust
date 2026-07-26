@@ -25,4 +25,10 @@ pub mod settings;
 /// Realtime Server [Not Available]
 pub mod rts;
 
+/// Batch API
+pub mod batch;
+
+/// Files API
+pub mod files;
+
 mod httpc;

@@ -17,7 +17,7 @@ or add the following to your `Cargo.toml`
 
 ```toml
 [dependencies]
-pocketbase-sdk = "0.3.0"
+pocketbase-sdk = "0.4.0"
 serde = { version = "1", features = ["derive"] }
 ```
 
@@ -130,6 +130,47 @@ fn main() -> Result<()> {
 }
 ```
 
+### File Upload & Query Params
+
+```rust
+let products = authenticated_client
+    .records("products")
+    .list()
+    .expand("author")
+    .fields("id,title")
+    .call::<Product>()?;
+
+let create_response = authenticated_client
+    .records("products")
+    .create_multipart()
+    .text("title", "hello")
+    .file_bytes("photo", "photo.png", photo_bytes)
+    .call()?;
+```
+
+### Batch
+
+```rust
+let results = client
+    .batch()
+    .create("posts", &json!({ "title": "one" }))?
+    .delete("posts", "someoldid")
+    .call()?;
+```
+
+### Files
+
+```rust
+let token = client.files().token()?;
+
+let bytes = client
+    .files()
+    .download("posts", "recordid", "photo.png")
+    .thumb("100x100")
+    .token(&token)
+    .call()?;
+```
+
 ### Auth Flows
 
 ```rust
@@ -199,13 +240,13 @@ fn main() -> Result<()> {
     * [x] View Log
     * [x] Log Statistics
 * [ ] Files
-    * [ ] Download / Fetch File
-    * [ ] Generate Protected File Token
+    * [x] Download / Fetch File
+    * [x] Generate Protected File Token
 * [ ] Records
     * [x] Create Records
     * [x] Update Records
     * [x] Delete Records
-    * [ ] Bulk Delete Records
+    * [x] Bulk Delete Records
     * [x] List Auth Methods
     * [x] Auth with OAuth2
     * [x] Auth Refresh
