@@ -12,7 +12,12 @@ pub struct Field {
     pub name: String,
     pub r#type: String,
     pub required: bool,
-    pub unique: bool,
+    #[serde(default)]
+    pub hidden: bool,
+    #[serde(default)]
+    pub presentable: bool,
+    #[serde(default)]
+    pub primary_key: bool,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -36,11 +41,13 @@ pub struct CollectionList {
 #[serde(rename_all = "camelCase")]
 pub struct Collection {
     pub id: String,
+    #[serde(deserialize_with = "crate::datetime::deserialize")]
     pub created: DateTime<Utc>,
     pub r#type: String,
+    #[serde(deserialize_with = "crate::datetime::deserialize")]
     pub updated: DateTime<Utc>,
     pub name: String,
-    pub schema: Vec<Field>,
+    pub fields: Vec<Field>,
 }
 
 #[derive(Clone, Debug)]
@@ -55,7 +62,7 @@ pub struct CollectionDetails<'a> {
     pub id: Option<&'a str>,
     pub name: Option<&'a str>,
     pub r#type: Option<&'a str>,
-    pub schema: Vec<FieldDeclaration<'a>>,
+    pub fields: Vec<FieldDeclaration<'a>>,
     pub system: bool,
     pub list_rule: Option<String>,
     pub view_rule: Option<String>,
@@ -100,7 +107,7 @@ impl<'a> CollectionListRequestBuilder<'a> {
         }
         let per_page_opts = self.per_page.to_string();
         let page_opts = self.page.to_string();
-        build_opts.push(("per_page", per_page_opts.as_str()));
+        build_opts.push(("perPage", per_page_opts.as_str()));
         build_opts.push(("page", page_opts.as_str()));
 
         match Httpc::get(self.client, &url, Some(build_opts)) {
@@ -142,14 +149,14 @@ impl<'a> CollectionListRequestBuilder<'a> {
 }
 
 impl<'a> CollectionsManager<'a> {
-    pub fn view(&self, name: &'a str) -> CollectionViewRequestBuilder {
+    pub fn view(&self, name: &'a str) -> CollectionViewRequestBuilder<'_> {
         CollectionViewRequestBuilder {
             client: self.client,
             name,
         }
     }
 
-    pub fn create(&self, name: &'a str) -> CollectionCreateRequestBuilder {
+    pub fn create(&self, name: &'a str) -> CollectionCreateRequestBuilder<'_> {
         CollectionCreateRequestBuilder {
             client: self.client,
             collection_details: None,
@@ -157,7 +164,7 @@ impl<'a> CollectionsManager<'a> {
         }
     }
 
-    pub fn list(&self) -> CollectionListRequestBuilder {
+    pub fn list(&self) -> CollectionListRequestBuilder<'_> {
         CollectionListRequestBuilder {
             client: self.client,
             filter: None,

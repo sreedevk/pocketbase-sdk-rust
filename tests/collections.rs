@@ -1,11 +1,12 @@
 use httpmock::prelude::*;
-use pocketbase_sdk::admin::Admin;
+use pocketbase_sdk::client::Client;
 use serde_json::json;
 
 #[test]
 fn collections_list_success() {
     let mockserver_url = mockserver().base_url();
-    let admin_client = Admin::new(mockserver_url.as_str())
+    let admin_client = Client::new(mockserver_url.as_str())
+        .superusers()
         .auth_with_password("sreedev@icloud.com", "Sreedev123")
         .unwrap();
 
@@ -16,7 +17,8 @@ fn collections_list_success() {
 #[test]
 fn colletion_view_succes() {
     let mockserver_url = mockserver().base_url();
-    let admin_client = Admin::new(mockserver_url.as_str())
+    let admin_client = Client::new(mockserver_url.as_str())
+        .superusers()
         .auth_with_password("sreedev@icloud.com", "Sreedev123")
         .unwrap();
     let collection = admin_client.collections().view("posts").call();
@@ -36,14 +38,15 @@ fn mockserver() -> MockServer {
                 "updated": "2022-06-22 07:13:00.643Z",
                 "name": "posts",
                 "type": "base",
-                "schema": [
+                "fields": [
                 {
                     "system": false,
                     "id": "njnkhxa2",
                     "name": "title",
                     "type": "text",
                     "required": false,
-                    "unique": false,
+                    "hidden": false,
+                    "presentable": false,
                     "options": {
                     "min": null,
                     "max": null,
@@ -56,7 +59,8 @@ fn mockserver() -> MockServer {
                     "name": "image",
                     "type": "file",
                     "required": false,
-                    "unique": false,
+                    "hidden": false,
+                    "presentable": false,
                     "options": {
                     "maxSelect": 1,
                     "maxSize": 5242880,
@@ -100,14 +104,15 @@ fn mockserver() -> MockServer {
             "name": "users",
             "type": "base",
             "system": true,
-            "schema": [
+            "fields": [
                 {
                     "system": false,
                     "id": "njnkhxa2",
                     "name": "title",
                     "type": "text",
                     "required": false,
-                    "unique": false,
+                    "hidden": false,
+                    "presentable": false,
                     "options": {
                         "min": "",
                         "max": "",
@@ -120,7 +125,8 @@ fn mockserver() -> MockServer {
                     "name": "avatar",
                     "type": "file",
                     "required": false,
-                    "unique": false,
+                    "hidden": false,
+                    "presentable": false,
                     "options": {
                         "maxSelect": 1,
                         "maxSize": 5242880,
@@ -163,19 +169,16 @@ fn mockserver() -> MockServer {
                 "identity": "sreedev@icloud.com",
                 "password": "Sreedev123"
             }))
-            .path("/api/admins/auth-with-password");
+            .path("/api/collections/_superusers/auth-with-password");
 
         then
             .status(200)
             .header("content-type", "application/json")
             .json_body(json!({
                     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InN5d2JoZWNuaDQ2cmhtMCIsInR5cGUiOiJhZG1pbiIsImV4cCI6MjIwODk4MTYwMH0.han3_sG65zLddpcX2ic78qgy7FKecuPfOpFa8Dvi5Bg",
-                    "admin": {
+                    "record": {
                     "id": "b6e4b08274f34e9",
-                    "created": "2022-06-22 07:13:09.735Z",
-                    "updated": "2022-06-22 07:13:09.735Z",
-                    "email": "test@example.com",
-                    "avatar": 0
+                    "email": "test@example.com"
                 }
             }));
     });

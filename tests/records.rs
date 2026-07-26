@@ -28,7 +28,7 @@ fn mock_records_server() -> MockServer {
         when.method(GET)
             .path("/api/collections/posts/records")
             .query_param("page", "1")
-            .query_param("per_page", "1010")
+            .query_param("perPage", "1010")
             .header("Authorization", "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjRxMXhsY2xtZmxva3UzMyIsInR5cGUiOiJhdXRoUmVjb3JkIiwiY29sbGVjdGlvbklkIjoiX3BiX3VzZXJzX2F1dGhfIiwiZXhwIjoyMjA4OTg1MjYxfQ.UwD8JvkbQtXpymT09d7J6fdA0aP9g4FJ1GPh_ggEkzc");
         then.header("Content-Type", "application/json")
             .json_body(json!({

@@ -1,12 +1,13 @@
+use crate::superusers::SuperUsersManager;
 use crate::{collections::CollectionsManager, httpc::Httpc};
 use crate::{logs::LogsManager, records::RecordsManager};
 use anyhow::{anyhow, Result};
 use serde::Deserialize;
 use serde_json::json;
 
-#[derive(Debug, Deserialize)]
-struct AuthSuccessResponse {
-    token: String,
+#[derive(Debug, Clone, Deserialize)]
+pub(crate) struct AuthSuccessResponse {
+    pub(crate) token: String,
 }
 
 #[derive(Debug, Clone)]
@@ -29,7 +30,7 @@ pub struct HealthCheckResponse {
 }
 
 impl Client<Auth> {
-    pub fn collections(&self) -> CollectionsManager {
+    pub fn collections(&self) -> CollectionsManager<'_> {
         CollectionsManager { client: self }
     }
 
@@ -41,11 +42,11 @@ impl Client<Auth> {
         }
     }
 
-    pub fn logs(&self) -> LogsManager {
+    pub fn logs(&self) -> LogsManager<'_> {
         LogsManager { client: self }
     }
 
-    pub fn records(&self, record_name: &'static str) -> RecordsManager {
+    pub fn records(&self, record_name: &'static str) -> RecordsManager<'_> {
         RecordsManager {
             client: self,
             name: record_name,
@@ -54,6 +55,10 @@ impl Client<Auth> {
 }
 
 impl Client<NoAuth> {
+    pub fn superusers(&self) -> SuperUsersManager<'_> {
+        SuperUsersManager { client: self }
+    }
+
     pub fn new(base_url: &str) -> Self {
         Self {
             base_url: base_url.to_string(),

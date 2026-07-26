@@ -1,8 +1,11 @@
 /// Non Admin Client
 pub mod client;
 
-/// Admin Client - Mirror of Client but with admin authentication token
-pub mod admin;
+/// SuperUsers Client - authenticates against the _superusers collection
+pub mod superusers;
+
+/// PocketBase Datetime Helpers
+pub mod datetime;
 
 /// Records Related Operations
 pub mod records;

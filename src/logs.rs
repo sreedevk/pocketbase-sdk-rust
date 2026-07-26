@@ -2,7 +2,6 @@ use crate::client::{Auth, Client};
 use crate::httpc::Httpc;
 use anyhow::Result;
 use serde::Deserialize;
-use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 
 pub struct LogsManager<'a> {
@@ -34,15 +33,13 @@ pub struct LogStatisticsRequestBuilder<'a> {
 #[serde(rename_all = "camelCase")]
 pub struct LogListItem {
     pub id: String,
+    #[serde(deserialize_with = "crate::datetime::deserialize")]
     pub created: DateTime<Utc>,
+    #[serde(deserialize_with = "crate::datetime::deserialize")]
     pub updated: DateTime<Utc>,
-    pub url: String,
-    pub method: String,
-    pub status: i32,
-    pub ip: Option<String>,
-    pub referer: String,
-    pub user_agent: String,
-    pub meta: HashMap<String, String>,
+    pub level: i32,
+    pub message: String,
+    pub data: serde_json::Value,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -69,7 +66,7 @@ impl<'a> LogStatisticsRequestBuilder<'a> {
     }
 
     pub fn call(&self) -> Result<Vec<LogStatDataPoint>> {
-        let url = format!("{}/api/logs/requests/stats", self.client.base_url);
+        let url = format!("{}/api/logs/stats", self.client.base_url);
         let mut build_opts = Vec::new();
         if let Some(filter_opts) = &self.filter {
             build_opts.push(("filter", filter_opts.to_owned()));
@@ -87,7 +84,7 @@ impl<'a> LogStatisticsRequestBuilder<'a> {
 
 impl<'a> LogViewRequestBuilder<'a> {
     pub fn call(&self) -> Result<LogListItem> {
-        let url = format!("{}/api/logs/requests/{}", self.client.base_url, self.id);
+        let url = format!("{}/api/logs/{}", self.client.base_url, self.id);
         match Httpc::get(self.client, &url, None) {
             Ok(result) => {
                 let response = result.into_json::<LogListItem>()?;
@@ -128,14 +125,14 @@ impl<'a> LogListRequestBuilder<'a> {
     }
 
     pub fn call(&self) -> Result<LogList> {
-        let url = format!("{}/api/logs/requests", self.client.base_url);
+        let url = format!("{}/api/logs", self.client.base_url);
         let mut build_opts = Vec::new();
 
         if let Some(sort_opts) = &self.sort { build_opts.push(("sort", sort_opts.to_owned())) }
         if let Some(filter_opts) = &self.filter { build_opts.push(("filter", filter_opts.to_owned())) }
         let per_page_opts = self.per_page.to_string();
         let page_opts = self.page.to_string();
-        build_opts.push(("per_page", per_page_opts.as_str()));
+        build_opts.push(("perPage", per_page_opts.as_str()));
         build_opts.push(("page", page_opts.as_str()));
 
         match Httpc::get(self.client, &url, Some(build_opts)) {

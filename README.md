@@ -2,10 +2,10 @@
 
 A Rust SDK for Pocketbase Clients. Pocketbase is an open source backend for your SaaS & Mobile Applications. The Goal of this project is to create a wrapper around the APIs that Pocketbase exposes to abstract away unnecessary details of implementation, so that you can focus on building your app and not worry about integration with pocketbase.  
 
-#### Currently Compatible with Pocketbase Version 0.15.1
+#### Currently Compatible with Pocketbase Version 0.39.x
 
 #### NOTE
-Version 0.1.1 of pocketbase SDK is complete reimplementation and is not compatible with the previous versions. The sytax has modified to be more minimalistic. This has been done to make pocketbase-sdk more user-friendly & to facilitate continued maintenance of pocketbase-sdk.  
+Version 0.2.0 targets PocketBase 0.39.x and contains breaking changes from the 0.1.x line: admin auth has been replaced by superusers, collection and log response shapes have been updated to match the current API, and pagination has been fixed.
 
 # Installation
 
@@ -17,24 +17,23 @@ or add the following to your `Cargo.toml`
 
 ```toml
 [dependencies]
-pocketbase-sdk = "0.1.1"
-serde = { version = "1.0.145", features = ["derive"] }
+pocketbase-sdk = "0.2.0"
+serde = { version = "1", features = ["derive"] }
 ```
 
 # Usage
 
 ```rust
 use anyhow::Result;
-use pocketbase_sdk::admin::Admin;
+use pocketbase_sdk::client::Client;
 
 fn main() -> Result<()> {
     env_logger::init();
 
-    // admin authentication
-    let authenticated_admin_client = Admin::new("http://localhost:8090")
+    let authenticated_admin_client = Client::new("http://localhost:8090")
+        .superusers()
         .auth_with_password("sreedev@icloud.com", "Sreedev123")?;
 
-    // collections list + Filter
     let collections = authenticated_admin_client
         .collections()
         .list()
@@ -44,7 +43,6 @@ fn main() -> Result<()> {
 
     dbg!(collections);
 
-    // view collection
     let user_collection = authenticated_admin_client
         .collections()
         .view("users")
@@ -136,25 +134,22 @@ fn main() -> Result<()> {
 
 ```rust
 use anyhow::Result;
-use pocketbase_sdk::admin::Admin;
+use pocketbase_sdk::client::Client;
 
 fn main() -> Result<()> {
     env_logger::init();
 
-    // admin authentication
-    let admin = Admin::new("http://localhost:8090")
+    let admin = Client::new("http://localhost:8090")
+        .superusers()
         .auth_with_password("sreedev@icloud.com", "Sreedev123")?;
 
-    // list logs
     let logs = admin.logs().list().page(1).per_page(10).call()?;
     dbg!(&logs);
 
-    // view log
     let somelogid = &logs.items[0].id;
     let logitem = admin.logs().view(somelogid).call()?;
     dbg!(logitem);
 
-    // view log statistics data points
     let logstats = admin.logs().statistics().call()?;
     dbg!(logstats);
 
@@ -179,18 +174,15 @@ fn main() -> Result<()> {
 
 # Development TODOs
 * [ ] Improve Test Coverage
+* [x] Superuser Auth
 * [ ] Collections
     * [x] List Collections
     * [x] View Collection
     * [ ] Create Collection
-    * [ ] Auth Refresh
-    * [ ] Request Password Reset
-    * [ ] Confirm Password Reset
-    * [ ] List Admins
-    * [ ] View Admin
-    * [ ] Create Admin
-    * [ ] Update Admin
-    * [ ] Delete Admin
+* [ ] Logs
+    * [x] List Logs
+    * [x] View Log
+    * [x] Log Statistics
 * [ ] Files
     * [ ] Download / Fetch File
     * [ ] Generate Protected File Token

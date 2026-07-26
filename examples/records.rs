@@ -7,6 +7,7 @@ pub struct Product {
     pub id: String,
     pub name: String,
     pub count: i32,
+    #[serde(deserialize_with = "pocketbase_sdk::datetime::deserialize")]
     pub created: chrono::DateTime<chrono::Utc>,
 }
 

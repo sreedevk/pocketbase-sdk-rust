@@ -1,11 +1,11 @@
 use anyhow::Result;
-use pocketbase_sdk::admin::Admin;
+use pocketbase_sdk::client::Client;
 
 fn main() -> Result<()> {
     env_logger::init();
 
-    // admin authentication
-    let authenticated_admin_client = Admin::new("http://localhost:8090")
+    let authenticated_admin_client = Client::new("http://localhost:8090")
+        .superusers()
         .auth_with_password("sreedev@icloud.com", "Sreedev123")?;
 
     // collections list + Filter
