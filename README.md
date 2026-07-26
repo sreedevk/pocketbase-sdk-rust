@@ -1,6 +1,9 @@
 ### Pocketbase SDK
 
-A Rust SDK for Pocketbase Clients. Pocketbase is an open source backend for your SaaS & Mobile Applications. The Goal of this project is to create a wrapper around the APIs that Pocketbase exposes to abstract away unnecessary details of implementation, so that you can focus on building your app and not worry about integration with pocketbase.  
+A Rust SDK for Pocketbase Clients. Pocketbase is an open source backend for your SaaS & Mobile Applications. The Goal of this project is to create a wrapper around the APIs that Pocketbase exposes to abstract away unnecessary details of implementation, so that you can focus on building your app and not worry about integration with pocketbase.
+
+> [!NOTE]
+> This project is maintained with the assistance of AI tools. All changes are subject to manual review and a comprehensive test suite to ensure stability and quality.
 
 #### Currently Compatible with Pocketbase Version 0.39.x
 
